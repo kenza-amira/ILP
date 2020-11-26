@@ -91,11 +91,18 @@ public class App
          * the words folder in our web server to find this information and create a list of points for our map.
          */
         var sensorsLocation = new ArrayList<Point>();
+        var batteries = new ArrayList<String>();
+        var readings = new ArrayList<String>();
+        
         var lng = new ArrayList<Double>();
         var lat = new ArrayList<Double>();
+        
         sensorsLocation.add(start);
         lng.add(start.longitude());
         lat.add(start.latitude());
+        batteries.add("0");
+        readings.add("NaN");
+        
         int length = 0;
         for (Sensor sensor: sensorList) {
         	//We changed the format of the location string to be able to fetch the data from the server
@@ -111,14 +118,21 @@ public class App
         	//of a JSON list. Once we have the coordinates we create a geoJson Point.
         	var details = new Gson().fromJson(responseL.body(), LocationDetails.class);
         	var loc = Point.fromLngLat(details.coordinates.lng, details.coordinates.lat);
+        	batteries.add(sensor.getBattery());
+        	//System.out.println(sensor.getReading());
+        	readings.add(sensor.getReading());
         	lng.add(details.coordinates.lng);
         	lat.add(details.coordinates.lat);
         	sensorsLocation.add(loc);
         	length += 1;
         }
+        
+        int k = 0;
         for (Point p : sensorsLocation) {
         	var feature = Feature.fromGeometry((Geometry)p);
+        		Color(readings.get(k),feature,batteries.get(k));
         	features.add(feature);
+        	k += 1;
         }
         features.addAll(noFly);
 
@@ -136,7 +150,9 @@ public class App
         Queue<Integer> queue = new LinkedList<Integer>();
         queue.add(0);
         route.add(0);
-        while (!queue.isEmpty() && counter < length) {
+        double sum = 0;
+        
+        while (!queue.isEmpty() && counter < length && sum < 150 * 0.0003) {
         		counter += 1;
         		Integer i = queue.remove();
         		//System.out.println(i);
@@ -149,13 +165,15 @@ public class App
             	for (Double d: next) {
             		value = (d == 0) ? value : Math.min(value, d);
             	}
-            	System.out.println(value);
+            	//System.out.println(value);
             	int index = findIndex(next,value);
             	//System.out.println(index);
             	queue.add(index);
             	visited.add(index);
             	route.add(index);
+            	sum += value;
         }
+    
         var orderedSensors = new ArrayList<Point>();
         for (Integer i: route) {
         	orderedSensors.add(sensorsLocation.get(i));
@@ -163,6 +181,18 @@ public class App
         System.out.println(sensorsLocation.size());
         var ls = LineString.fromLngLats(orderedSensors);
         features.add(Feature.fromGeometry((Geometry)ls));
+        
+        // To have a closed loop eventually
+        double tmp = euclid(orderedSensors.get(0).longitude(),orderedSensors.get(0).latitude(),
+        		orderedSensors.get(0).longitude(),orderedSensors.get(0).latitude());
+        if (tmp + sum < 150 * 0.0003 ) {
+        	var tmpLs = new ArrayList<Point>();
+        	tmpLs.add(orderedSensors.get(0));
+        	tmpLs.add(orderedSensors.get(1));
+        	var Ls = LineString.fromLngLats(tmpLs);
+        	features.add(Feature.fromGeometry((Geometry)Ls));
+        }
+        
         var collections = FeatureCollection.fromFeatures(features);
         System.out.println(collections.toJson());
     }
@@ -194,5 +224,59 @@ public class App
             } 
         } 
         return -1; 
-    } 
+    }
+    
+    public static void Color(String airQ, Feature feature, String battery) {
+    	if (!airQ.equals("null") && !airQ.equals("NaN")) {
+    		double airQuality = Double.parseDouble(airQ);
+    		if (Double.parseDouble(battery)>10) {
+        		if (0 <= airQuality && airQuality < 32) {
+        			feature.addStringProperty("marker-color", "#00ff00");
+        			feature.addStringProperty("rgb-string", "#00ff00");
+        			feature.addStringProperty("marker-symbol", "lighthouse");
+        		} else if (32 <= airQuality && airQuality < 64) {
+        			feature.addStringProperty("marker-color", "#40ff00");
+        			feature.addStringProperty("rgb-string", "#40ff00");
+        			feature.addStringProperty("marker-symbol", "lighthouse");
+        		} else if (64 <= airQuality && airQuality < 96) {
+        			feature.addStringProperty("marker-color", "#80ff00");
+        			feature.addStringProperty("rgb-string", "#80ff00");
+        			feature.addStringProperty("marker-symbol", "lighthouse");
+        		} else if (96 <= airQuality && airQuality < 128) {
+        			feature.addStringProperty("marker-color", "#c0ff00");
+        			feature.addStringProperty("rgb-string", "#c0ff00");
+        			feature.addStringProperty("marker-symbol", "lighthouse");
+        		} else if (128 <= airQuality && airQuality < 160) {
+        			feature.addStringProperty("marker-color", "#ffc000");
+        			feature.addStringProperty("rgb-string", "#ffc000");
+        			feature.addStringProperty("marker-symbol", "danger");
+        		} else if (160 <= airQuality && airQuality < 192) {
+        			feature.addStringProperty("marker-color", "#ff8000");
+        			feature.addStringProperty("rgb-string", "#ff8000");
+        			feature.addStringProperty("marker-symbol", "danger");
+        		} else if (192 <= airQuality && airQuality < 224) {
+        			feature.addStringProperty("marker-color", "#ff4000");
+        			feature.addStringProperty("rgb-string", "#ff4000");
+        			feature.addStringProperty("marker-symbol", "danger");
+        		} else if (224 <= airQuality && airQuality < 256) {
+        			feature.addStringProperty("marker-color", "#ff0000");
+        			feature.addStringProperty("rgb-string", "#ff0000");
+        			feature.addStringProperty("marker-symbol", "danger");
+        		} else {
+        			// If the number fetched is not included int the previous cases we throw
+        			// an illegal argument excpetion.
+        			throw new IllegalArgumentException("Value out of bound (" + airQuality + ")");
+        		}
+        		
+        	} else {
+        		feature.addStringProperty("marker-color", "#000000");
+        		feature.addStringProperty("rgb-string", "#000000");
+        		feature.addStringProperty("marker-symbol", "cross");
+        	}
+    	} else {
+    		feature.addStringProperty("marker-color", "#000000");
+    		feature.addStringProperty("rgb-string", "#000000");
+    		feature.addStringProperty("marker-symbol", "cross");
+    	}
+	}
 }
