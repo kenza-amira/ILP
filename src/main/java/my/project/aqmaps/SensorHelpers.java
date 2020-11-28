@@ -91,7 +91,7 @@ public class SensorHelpers {
 			// record instead
 			// of a JSON list.
 			var details = new Gson().fromJson(responseL.body(), LocationDetails.class);
-			lat.add(details.coordinates.lng);
+			lat.add(details.coordinates.lat);
 		}
 		return lat;
 	}

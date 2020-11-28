@@ -28,7 +28,6 @@ public class App {
 		
 		// Starting point of our drone
 		var start = Point.fromLngLat(Double.parseDouble(args[4]), Double.parseDouble(args[3]));
-		System.out.println(start);
 		// We only need one HttpClient, shared between all HttpRequests
 		final HttpClient client = HttpClient.newHttpClient();
 		// Saving this string as it will be needed for multiple URL's.
@@ -111,7 +110,6 @@ public class App {
 		
 		//Greedy search algorithm
 		var orderedSensors = search.greedySearch(dists, length, sensorsLocation);
-		System.out.println(orderedSensors.size());
 		var ls = LineString.fromLngLats(orderedSensors);
 		features.add(Feature.fromGeometry((Geometry) ls));
 
