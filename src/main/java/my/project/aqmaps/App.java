@@ -7,7 +7,8 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.util.ArrayList;
-
+import java.util.List;
+import java.util.stream.Collectors;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -16,6 +17,7 @@ import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.geojson.Geometry;
 import com.mapbox.geojson.LineString;
 import com.mapbox.geojson.Point;
+import com.mapbox.geojson.Polygon;
 import com.mapbox.turf.*;
 
 
@@ -90,20 +92,36 @@ public class App {
 		
 
 		var sensorsLocation = sensHelp.getSensorLoc(sensorList, host, client, start);
-		int length = sensorsLocation.size();
 		var batteries = sensHelp.getBatteries(sensorList);
 		var readings = sensHelp.getReadings(sensorList);
 		var lng = sensHelp.getLongitudes(sensorList, start, host, client);
 		var lat = sensHelp.getLatitudes(sensorList, start, host, client);
+/*		for (Feature f: noFly) {
+			var geometry = f.geometry();
+			var poly = (Polygon)geometry;
+			var coord = poly.coordinates();
+			var flat = coord.stream()
+			        .flatMap(List::stream)
+			        .collect(Collectors.toList());
+			for (Point p: flat) {
+				sensorsLocation.add(p);
+				var lt = p.latitude();
+				var ln = p.longitude();
+				lat.add(lt);
+				lng.add(ln);
+			}
+		}*/
+		int length = sensorsLocation.size();
 
-		int k = 0;
-		for (Point p : sensorsLocation) {
-			var feature = Feature.fromGeometry((Geometry) p);
-			Color(readings.get(k), feature, batteries.get(k));
-			features.add(feature);
-			k += 1;
-		}
+//		int k = 0;
+//		for (Point p : sensorsLocation) {
+//			var feature = Feature.fromGeometry((Geometry) p);
+//			Color(readings.get(k), feature, batteries.get(k));
+//			features.add(feature);
+//			k += 1;
+//		}
 		features.addAll(noFly);
+		
 		
 		//Getting distances from all points to every other points
 		double[][] dists = helper.generateDistanceMatrix(lng, lat, length);

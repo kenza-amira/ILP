@@ -32,7 +32,7 @@ public class GraphSearch {
 			}
 			// System.out.println(value);
 			int index = helper.findIndex(next, value);
-			//System.out.println(index);
+			// System.out.println(index);
 			queue.add(index);
 			visited.add(index);
 			route.add(index);
