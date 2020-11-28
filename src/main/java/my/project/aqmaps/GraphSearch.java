@@ -16,8 +16,8 @@ public class GraphSearch {
 		queue.add(0);
 		route.add(0);
 		var helper = new Helpers();
-		//System.out.println(length);
-		while (!queue.isEmpty() && counter < length - 1) {
+		//System.out.println(dists);
+		while (!queue.isEmpty() && counter < length-1) {
 			counter += 1;
 			Integer i = queue.remove();
 			// System.out.println(i);
@@ -32,7 +32,7 @@ public class GraphSearch {
 			}
 			// System.out.println(value);
 			int index = helper.findIndex(next, value);
-			//System.out.println(counter);
+			System.out.println(index);
 			queue.add(index);
 			visited.add(index);
 			route.add(index);

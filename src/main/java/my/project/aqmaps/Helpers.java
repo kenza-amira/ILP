@@ -38,6 +38,7 @@ public class Helpers {
 		for (int i = 0; i < length; i++) {
 			for (int j = 0; j < length; j++) {
 				dists[i][j] = euclid(lng.get(i), lat.get(i), lng.get(j), lat.get(j));
+				System.out.println(dists[i][j] = euclid(lng.get(i), lat.get(i), lng.get(j), lat.get(j)));
 			}
 		}
 		return dists;
