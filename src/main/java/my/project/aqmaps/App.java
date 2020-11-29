@@ -119,11 +119,26 @@ public class App {
 		double[][] dists = helper.generateDistanceMatrix(lng, lat, length);
 		
 		//Greedy search algorithm
-		var orderedSensors = search.greedySearch(dists, length, sensorsLocation);
+		var route = search.greedySearch(dists, length, sensorsLocation);
+		var orderedSensors = new ArrayList<Point>();
+		var orderedReadings = new ArrayList<String>();
+		var orderedBatteries= new ArrayList<String>();
+		for (Integer i : route) {
+			orderedSensors.add(sensorsLocation.get(i));
+			orderedReadings.add(readings.get(i));
+			orderedBatteries.add(batteries.get(i));
+		}
 		
+		// Path Finding algorithm
 		int sum = 0;
 		var first = start;
 		var lines = new ArrayList<LineString>();
+		
+		//Removing start from the arrays as we don't need it to be there for the pathfinding algorithm
+		orderedSensors.remove(0);
+		orderedBatteries.remove(0);
+		orderedReadings.remove(0);
+		
 		while (sum < 150 && !orderedSensors.isEmpty()) {
 			var distance = new ArrayList<Double>();
 			var points = new ArrayList<Point>();
@@ -156,9 +171,10 @@ public class App {
 			first = nextP;
 			var feat = Feature.fromGeometry((Geometry)target);
 			if (Collections.min(distance)<0.0002) {
+				Color(orderedReadings.get(0), feat, orderedBatteries.get(0));
 				orderedSensors.remove(0);
-				readings.remove(0);
-				batteries.remove(0);
+				orderedReadings.remove(0);
+				orderedBatteries.remove(0);
 				features.add(feat);
 			}
 			sum += 1;

@@ -12,7 +12,7 @@ import com.mapbox.turf.TurfJoins;
 
 public class GraphSearch {
 	
-	public ArrayList<Point> greedySearch (double[][] dists, int length, ArrayList<Point> sensorsLocation) {
+	public ArrayList<Integer> greedySearch (double[][] dists, int length, ArrayList<Point> sensorsLocation) {
 		var visited = new ArrayList<Integer>();
 		var route = new ArrayList<Integer>();
 		int counter = 1;
@@ -41,13 +41,8 @@ public class GraphSearch {
 			visited.add(index);
 			route.add(index);
 		}
-		//System.out.println(route.size());
-		var orderedSensors = new ArrayList<Point>();
-		for (Integer i : route) {
-			orderedSensors.add(sensorsLocation.get(i));
-		}
-		
-		return orderedSensors;
+		//System.out.println(route.size());	
+		return route;
 	}
 	
 	public ArrayList<Point> findNext(Point first){
