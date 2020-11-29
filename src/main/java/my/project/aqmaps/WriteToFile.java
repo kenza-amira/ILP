@@ -1,8 +1,12 @@
 package my.project.aqmaps;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.util.ArrayList;
 
 public class WriteToFile {
 	/**
@@ -31,6 +35,19 @@ public class WriteToFile {
 		outputWriter.close();
 
 		return output;
+	}
+	
+	public File writeLineByLine(String filename, ArrayList<String> toWrite) throws IOException {
+		File fout = new File(filename);
+		FileOutputStream fos = new FileOutputStream(fout);
+	 
+		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos));
+		for (String string: toWrite){
+			bw.write(string);
+			bw.newLine();
+		}
+		bw.close();
+		return fout;
 	}
 
 }

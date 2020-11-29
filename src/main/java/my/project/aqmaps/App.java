@@ -132,6 +132,11 @@ public class App {
 		var readingFilename = "readings-" + day + "-" + month + "-" + year + ".geojson";
 		var outputFileReading = writer.createFile(readingFilename, map);
 		System.out.println("File is at: " + outputFileReading.getAbsolutePath());
+		
+		//Writing flight path into file
+		var flightpathFilename = "flightpath-" + day + "-" + month + "-" + year + ".txt";
+		var outputFilePath = writer.writeLineByLine(flightpathFilename, path);
+		System.out.println("File is at: " + outputFilePath.getAbsolutePath());
 	}
 	
 	
