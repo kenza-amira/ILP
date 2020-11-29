@@ -33,6 +33,31 @@ public class Helpers {
 		return -1;
 	}
 	
+	public int findIndex(ArrayList<Double> arr, double value) {
+
+		// If array is Null
+		if (arr == null) {
+			return -1;
+		}
+
+		// find length of array
+		int len = arr.size();
+		int i = 0;
+
+		// traverse in the array
+		while (i < len) {
+
+			// if the i-th element is t
+			// then return the index
+			if (arr.get(i) == value) {
+				return i;
+			} else {
+				i = i + 1;
+			}
+		}
+		return -1;
+	}
+	
 	public double[][] generateDistanceMatrix(ArrayList<Double> lng, ArrayList<Double> lat, int length){
 		double[][] dists = new double[length][length];
 		for (int i = 0; i < length; i++) {

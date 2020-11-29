@@ -7,6 +7,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,7 +19,8 @@ import com.mapbox.geojson.Geometry;
 import com.mapbox.geojson.LineString;
 import com.mapbox.geojson.Point;
 import com.mapbox.geojson.Polygon;
-import com.mapbox.turf.*;
+import com.mapbox.turf.TurfJoins;
+import com.mapbox.turf.TurfMeta;
 
 
 /**
@@ -78,6 +80,13 @@ public class App {
 		var responseD = client.send(requestD, BodyHandlers.ofString());
 		var obstacles = FeatureCollection.fromJson(responseD.body());
 		var noFly = obstacles.features();
+		var outer = new ArrayList<Polygon>();
+		for (Feature f: noFly) {
+			var geo = f.geometry();
+			var poly = (Polygon)geo;
+			outer.add(poly);
+		}
+		//System.out.println(outer);
 
 		/**
 		 * We have previously formed an array of Sensor objects. Since we now have a
@@ -128,9 +137,60 @@ public class App {
 		
 		//Greedy search algorithm
 		var orderedSensors = search.greedySearch(dists, length, sensorsLocation);
-		var ls = LineString.fromLngLats(orderedSensors);
-		features.add(Feature.fromGeometry((Geometry) ls));
-
+		
+		int sum = 0;
+		var first = start;
+		var lines = new ArrayList<LineString>();
+		while (sum < 150 && !orderedSensors.isEmpty()) {
+			var distance = new ArrayList<Double>();
+			var points = new ArrayList<Point>();
+			var nextPoints = search.findNext(first);
+			//var possible = new ArrayList<LineString>();
+			//System.out.println(orderedSensors.size());
+			var target = orderedSensors.get(0);
+			for (Point p: nextPoints) {
+				var x1 = (Double)p.latitude();
+				var x2 = (Double)target.latitude();
+				var y1 = (Double)p.longitude();
+				var y2 = (Double)target.longitude();
+				distance.add(helper.euclid(x1, y1, x2, y2));
+				//points.add(first);
+				//points.add(p);
+				//possible.add(LineString.fromLngLats(points));
+			}
+/*			var k = 0;
+			for (LineString l: possible) {
+				for (Point consti: l.coordinates()) {
+					for (Polygon poly : outer)
+					if (TurfJoins.inside(consti, poly)) {
+						distance.set(k, Double.MAX_VALUE);
+						break;
+					}
+				} k+=1;
+			}*/
+			int minIndex = distance.indexOf(Collections.min(distance));
+			var nextP = nextPoints.get(minIndex);
+			//var toAdd = possible.get(minIndex);
+			//points.clear();
+			points.add(first);
+			points.add(nextP);
+			lines.add(LineString.fromLngLats(points));
+			//lines.add(toAdd);
+			first = nextP;
+			var feat = Feature.fromGeometry((Geometry)target);
+			if (Collections.min(distance)<0.0002) {
+				//Color(readings.get(0), feat, batteries.get(0));
+				orderedSensors.remove(0);
+				readings.remove(0);
+				batteries.remove(0);
+				features.add(feat);
+			}
+			sum += 1;
+		}
+		//System.out.println(sum);
+		for (LineString l : lines) {
+			features.add(Feature.fromGeometry((Geometry)l));
+		}
 		var collections = FeatureCollection.fromFeatures(features);
 		System.out.println(collections.toJson());
 	}
