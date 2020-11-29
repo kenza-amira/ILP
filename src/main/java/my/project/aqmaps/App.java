@@ -7,7 +7,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.util.ArrayList;
-import java.util.Collections;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -94,13 +93,6 @@ public class App {
 		var lat = sensHelp.getLatitudes(sensorList, start, host, client);
 		int length = sensorsLocation.size();
 
-//		int k = 0;
-//		for (Point p : sensorsLocation) {
-//			var feature = Feature.fromGeometry((Geometry) p);
-//			Color(readings.get(k), feature, batteries.get(k));
-//			features.add(feature);
-//			k += 1;
-//		}
 		features.addAll(noFly);
 		
 		
@@ -109,69 +101,14 @@ public class App {
 		
 		//Greedy search algorithm
 		var route = search.greedySearch(dists, length, sensorsLocation);
+		
 		var orderedSensors = new ArrayList<Point>();
 		var orderedReadings = new ArrayList<String>();
 		var orderedBatteries= new ArrayList<String>();
-		for (Integer i : route) {
-			orderedSensors.add(sensorsLocation.get(i));
-			orderedReadings.add(readings.get(i));
-			orderedBatteries.add(batteries.get(i));
-		}
-		
+		helper.reorderArrays(route, sensorsLocation, batteries, readings, orderedSensors, orderedBatteries, orderedReadings);
+	
 		// Path Finding algorithm
-		int sum = 0;
-		var first = start;
-		var lines = new ArrayList<LineString>();
-		
-		//Removing start from the arrays as we don't need it to be there for the pathfinding algorithm
-		orderedSensors.remove(0);
-		orderedBatteries.remove(0);
-		orderedReadings.remove(0);
-		
-		//Added starting point to the end to attempt closed loop
-		orderedSensors.add(start);
-		orderedBatteries.add("0");
-		orderedReadings.add("null");
-		while (sum < 150 && !orderedSensors.isEmpty()) {
-			var distance = new ArrayList<Double>();
-			var points = new ArrayList<Point>();
-			var nextPoints = search.findNext(first);
-			var possible = new ArrayList<LineString>();
-			var target = orderedSensors.get(0);
-			for (Point p: nextPoints) {
-				var temporaryPoints = new ArrayList<Point>();
-				var x1 = (Double)p.latitude();
-				var x2 = (Double)target.latitude();
-				var y1 = (Double)p.longitude();
-				var y2 = (Double)target.longitude();
-				distance.add(helper.euclid(x1, y1, x2, y2));
-				temporaryPoints.add(first);
-				temporaryPoints.add(p);
-				possible.add(LineString.fromLngLats(temporaryPoints));
-			}
-			var k = 0;
-			for (LineString l: possible) {
-				if (search.isIntersecting(l,allZones)) {
-					distance.set(k, Double.MAX_VALUE);
-				}
-				k += 1;
-			}
-			int minIndex = distance.indexOf(Collections.min(distance));
-			var nextP = nextPoints.get(minIndex);
-			points.add(first);
-			points.add(nextP);
-			lines.add(LineString.fromLngLats(points));
-			first = nextP;
-			var feat = Feature.fromGeometry((Geometry)target);
-			if (Collections.min(distance)<0.0002 && orderedSensors.size()!=1) {
-				var coloredFeature = sensHelp.Color(orderedReadings.get(0), feat, orderedBatteries.get(0));
-				orderedSensors.remove(0);
-				orderedReadings.remove(0);
-				orderedBatteries.remove(0);
-				features.add(coloredFeature);
-			}
-			sum += 1;
-		}
+		var lines = search.findPath(orderedSensors, orderedBatteries, orderedReadings, start, allZones, features);
 		//System.out.println(sum);
 		for (LineString l : lines) {
 			features.add(Feature.fromGeometry((Geometry)l));

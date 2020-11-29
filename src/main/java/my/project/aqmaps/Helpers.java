@@ -2,6 +2,8 @@ package my.project.aqmaps;
 
 import java.util.ArrayList;
 
+import com.mapbox.geojson.Point;
+
 public class Helpers {
 	
 	public double euclid(double x1, double y1, double x2, double y2) {
@@ -66,6 +68,16 @@ public class Helpers {
 			}
 		}
 		return dists;
+	}
+	
+	public void reorderArrays (ArrayList<Integer> route, ArrayList<Point> sensorsLocation,
+ArrayList<String> batteries, ArrayList<String> readings, ArrayList<Point> orderedSensors, ArrayList<String> orderedBatteries,
+ArrayList<String> orderedReadings) {
+		for (Integer i : route) {
+			orderedSensors.add(sensorsLocation.get(i));
+			orderedReadings.add(readings.get(i));
+			orderedBatteries.add(batteries.get(i));
+		}
 	}
 
 }

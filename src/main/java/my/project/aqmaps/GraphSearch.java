@@ -1,16 +1,16 @@
 package my.project.aqmaps;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 
 import java.awt.geom.Line2D;
 
+import com.mapbox.geojson.Feature;
+import com.mapbox.geojson.Geometry;
 import com.mapbox.geojson.LineString;
 import com.mapbox.geojson.Point;
-import com.mapbox.geojson.Polygon;
-import com.mapbox.turf.TurfJoins;
 
 public class GraphSearch {
 	
@@ -117,5 +117,66 @@ public class GraphSearch {
 	{ 
 	    return (y2 - y1) / (x2 - x1); 
 	} 
+	
+	public ArrayList<LineString> findPath( ArrayList<Point> orderedSensors, ArrayList<String> orderedBatteries,
+			ArrayList<String> orderedReadings, Point start, ArrayList<LineString>allZones, ArrayList<Feature> features){
+		// Path Finding algorithm
+				int sum = 0;
+				var first = start;
+				var lines = new ArrayList<LineString>();
+				var helper = new Helpers();
+				var sensHelp = new SensorHelpers();
+				
+				//Removing start from the arrays as we don't need it to be there for the pathfinding algorithm
+				orderedSensors.remove(0);
+				orderedBatteries.remove(0);
+				orderedReadings.remove(0);
+				
+				//Added starting point to the end to attempt closed loop
+				orderedSensors.add(start);
+				orderedBatteries.add("0");
+				orderedReadings.add("null");
+				while (sum < 150 && !orderedSensors.isEmpty()) {
+					var distance = new ArrayList<Double>();
+					var points = new ArrayList<Point>();
+					var nextPoints = findNext(first);
+					var possible = new ArrayList<LineString>();
+					var target = orderedSensors.get(0);
+					for (Point p: nextPoints) {
+						var temporaryPoints = new ArrayList<Point>();
+						var x1 = (Double)p.latitude();
+						var x2 = (Double)target.latitude();
+						var y1 = (Double)p.longitude();
+						var y2 = (Double)target.longitude();
+						distance.add(helper.euclid(x1, y1, x2, y2));
+						temporaryPoints.add(first);
+						temporaryPoints.add(p);
+						possible.add(LineString.fromLngLats(temporaryPoints));
+					}
+					var k = 0;
+					for (LineString l: possible) {
+						if (isIntersecting(l,allZones)) {
+							distance.set(k, Double.MAX_VALUE);
+						}
+						k += 1;
+					}
+					int minIndex = distance.indexOf(Collections.min(distance));
+					var nextP = nextPoints.get(minIndex);
+					points.add(first);
+					points.add(nextP);
+					lines.add(LineString.fromLngLats(points));
+					first = nextP;
+					var feat = Feature.fromGeometry((Geometry)target);
+					if (Collections.min(distance)<0.0002 && orderedSensors.size()!=1) {
+						var coloredFeature = sensHelp.Color(orderedReadings.get(0), feat, orderedBatteries.get(0));
+						orderedSensors.remove(0);
+						orderedReadings.remove(0);
+						orderedBatteries.remove(0);
+						features.add(coloredFeature);
+					}
+					sum += 1;
+				}
+				return lines;
+	}
 	
 }
