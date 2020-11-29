@@ -145,29 +145,29 @@ public class App {
 			var distance = new ArrayList<Double>();
 			var points = new ArrayList<Point>();
 			var nextPoints = search.findNext(first);
-			//var possible = new ArrayList<LineString>();
+			var possible = new ArrayList<LineString>();
 			//System.out.println(orderedSensors.size());
 			var target = orderedSensors.get(0);
 			for (Point p: nextPoints) {
+				var points1 = new ArrayList<Point>();
 				var x1 = (Double)p.latitude();
 				var x2 = (Double)target.latitude();
 				var y1 = (Double)p.longitude();
 				var y2 = (Double)target.longitude();
 				distance.add(helper.euclid(x1, y1, x2, y2));
-				//points.add(first);
-				//points.add(p);
-				//possible.add(LineString.fromLngLats(points));
+				points1.add(first);
+				points1.add(p);
+				possible.add(LineString.fromLngLats(points1));
 			}
-/*			var k = 0;
+			var k = 0;
 			for (LineString l: possible) {
-				for (Point consti: l.coordinates()) {
-					for (Polygon poly : outer)
-					if (TurfJoins.inside(consti, poly)) {
-						distance.set(k, Double.MAX_VALUE);
-						break;
-					}
-				} k+=1;
-			}*/
+				//System.out.println(l);
+				if (Intersects(l,outer)) {
+					//System.out.println(Intersects(l,outer));
+					distance.set(k, Double.MAX_VALUE);
+				}
+				k += 1;
+			}
 			int minIndex = distance.indexOf(Collections.min(distance));
 			var nextP = nextPoints.get(minIndex);
 			//var toAdd = possible.get(minIndex);
@@ -242,6 +242,38 @@ public class App {
 			feature.addStringProperty("marker-color", "#000000");
 			feature.addStringProperty("rgb-string", "#000000");
 			feature.addStringProperty("marker-symbol", "cross");
-		} 
+		}
 	}
+	public static boolean Intersects(LineString ls, List<Polygon> polygons) {
+		var helper = new Helpers();
+		Boolean intersects = false;
+		//System.out.println(ls.coordinates().size());
+		Point start = ls.coordinates().get(0);
+		Point end = ls.coordinates().get(1);
+		var x1 = start.longitude();
+		var x2 = end.longitude();
+		var y1 = start.latitude();
+		var y2 = end.latitude();
+		var m = slope(x1,y1, x2, y2);
+		var b = y1 - m * x1;
+		var dist = helper.euclid(x1, y1, x2, y2);
+			for (double i = 0.0; i < dist; i+=0.000001) {
+				var lngS = start.longitude()+i;
+				var lngE = end.longitude()+i;
+				var latS = m * lngS + b;
+				var latE = m *lngE + b;
+				var startM = Point.fromLngLat(lngS,latS);
+				var endM = Point.fromLngLat(lngE,latE);
+				for (Polygon poly : polygons) {
+			        if (TurfJoins.inside(endM, poly)||TurfJoins.inside(startM, poly)) {
+			            intersects = true;
+			        }
+			    }
+			}
+		    return intersects;
+		}
+	public static double slope(double x1, double y1, double x2, double y2) 
+	{ 
+	    return (y2 - y1) / (x2 - x1); 
+	} 
 }
