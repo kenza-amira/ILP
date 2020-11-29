@@ -100,7 +100,7 @@ public class GraphSearch {
 		var m = slope(x1,y1, x2, y2);
 		var b = y1 - m * x1;
 		var dist = helper.euclid(x1, y1, x2, y2);
-			for (double i = 0.0; i < dist; i+=0.000001) {
+			for (double i = 0.0; i <= dist; i+=0.000001) {
 				var lngS = start.longitude()+i;
 				var lngE = end.longitude()+i;
 				var latS = m * lngS + b;
