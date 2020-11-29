@@ -21,7 +21,11 @@ public class App {
 	public static void main(String[] args) throws IOException, InterruptedException {
 		
 		// Starting point of our drone
-		var start = Point.fromLngLat(Double.parseDouble(args[4]), Double.parseDouble(args[3]));
+		final var start = Point.fromLngLat(Double.parseDouble(args[4]), Double.parseDouble(args[3]));
+		// Date input
+		final var year = args[2];
+		final var month = args[1];
+		final var day = args[0];
 		// We only need one HttpClient, shared between all HttpRequests
 		final HttpClient client = HttpClient.newHttpClient();
 		// Saving this string as it will be needed for multiple URL's.
@@ -32,7 +36,7 @@ public class App {
 		final var helper = new Helpers();
 		final var search = new GraphSearch();
 		final var sensHelp = new SensorHelpers();
-		//final var writer = new WriteToFile();
+		final var writer = new WriteToFile();
 
 		/**
 		 * This part of the code fetches the information stored in the web server maps
@@ -46,7 +50,7 @@ public class App {
 		 * date.
 		 * 
 		 */
-		String urlVisit = host + "/maps/" + args[2] + "/" + args[1] + "/" + args[0] + "/air-quality-data.json";
+		String urlVisit = host + "/maps/" + year + "/" + month + "/" + day + "/air-quality-data.json";
 
 		var requestV = HttpRequest.newBuilder().uri(URI.create(urlVisit)).build();
 		var responseV = client.send(requestV, BodyHandlers.ofString());
@@ -115,8 +119,16 @@ public class App {
 		for (LineString l : lines) {
 			features.add(Feature.fromGeometry((Geometry)l));
 		}
+		
+		//Generating our map
 		var collections = FeatureCollection.fromFeatures(features);
+		var map = collections.toJson();
 		System.out.println(collections.toJson());
+		
+		//Writing map into file
+		var readingFilename = "readings-" + day + "-" + month + "-" + year + ".geojson";
+		var outputFileReading = writer.createFile(readingFilename, map);
+		System.out.println("File is at: " + outputFileReading.getAbsolutePath());
 	}
 	
 	

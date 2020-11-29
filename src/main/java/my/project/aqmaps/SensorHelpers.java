@@ -146,5 +146,4 @@ public class SensorHelpers {
 		}
 		return feature;
 	}
-
 }
