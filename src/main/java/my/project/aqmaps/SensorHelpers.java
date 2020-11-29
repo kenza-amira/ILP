@@ -8,6 +8,7 @@ import java.net.http.HttpResponse.BodyHandlers;
 import java.util.ArrayList;
 
 import com.google.gson.Gson;
+import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.Point;
 
 public class SensorHelpers {
@@ -95,4 +96,55 @@ public class SensorHelpers {
 		}
 		return lat;
 	}
+	
+	public Feature Color(String airQ, Feature feature, String battery) {
+		if (!airQ.equals("null") && !airQ.equals("NaN") && 
+				Double.parseDouble(battery) > 10) {
+			double airQuality = Double.parseDouble(airQ);
+				if (0 <= airQuality && airQuality < 32) {
+					feature.addStringProperty("marker-color", "#00ff00");
+					feature.addStringProperty("rgb-string", "#00ff00");
+					feature.addStringProperty("marker-symbol", "lighthouse");
+				} else if (32 <= airQuality && airQuality < 64) {
+					feature.addStringProperty("marker-color", "#40ff00");
+					feature.addStringProperty("rgb-string", "#40ff00");
+					feature.addStringProperty("marker-symbol", "lighthouse");
+				} else if (64 <= airQuality && airQuality < 96) {
+					feature.addStringProperty("marker-color", "#80ff00");
+					feature.addStringProperty("rgb-string", "#80ff00");
+					feature.addStringProperty("marker-symbol", "lighthouse");
+				} else if (96 <= airQuality && airQuality < 128) {
+					feature.addStringProperty("marker-color", "#c0ff00");
+					feature.addStringProperty("rgb-string", "#c0ff00");
+					feature.addStringProperty("marker-symbol", "lighthouse");
+				} else if (128 <= airQuality && airQuality < 160) {
+					feature.addStringProperty("marker-color", "#ffc000");
+					feature.addStringProperty("rgb-string", "#ffc000");
+					feature.addStringProperty("marker-symbol", "danger");
+				} else if (160 <= airQuality && airQuality < 192) {
+					feature.addStringProperty("marker-color", "#ff8000");
+					feature.addStringProperty("rgb-string", "#ff8000");
+					feature.addStringProperty("marker-symbol", "danger");
+				} else if (192 <= airQuality && airQuality < 224) {
+					feature.addStringProperty("marker-color", "#ff4000");
+					feature.addStringProperty("rgb-string", "#ff4000");
+					feature.addStringProperty("marker-symbol", "danger");
+				} else if (224 <= airQuality && airQuality < 256) {
+					feature.addStringProperty("marker-color", "#ff0000");
+					feature.addStringProperty("rgb-string", "#ff0000");
+					feature.addStringProperty("marker-symbol", "danger");
+				} else {
+					// If the number fetched is not included int the previous cases we throw
+					// an illegal argument excpetion.
+					throw new IllegalArgumentException("Value out of bound (" + airQuality + ")");
+				}
+		} else if(airQ.equals("null") || airQ.equals("NaN") || 
+				Double.parseDouble(battery) <= 10){
+			feature.addStringProperty("marker-color", "#000000");
+			feature.addStringProperty("rgb-string", "#000000");
+			feature.addStringProperty("marker-symbol", "cross");
+		}
+		return feature;
+	}
+
 }
