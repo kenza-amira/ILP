@@ -2,9 +2,13 @@ package my.project.aqmaps;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
+import com.mapbox.geojson.LineString;
 import com.mapbox.geojson.Point;
+import com.mapbox.geojson.Polygon;
+import com.mapbox.turf.TurfJoins;
 
 public class GraphSearch {
 	
@@ -93,5 +97,38 @@ public class GraphSearch {
 		
 		return points;
 	}
+	
+	public boolean Intersects(LineString ls, List<Polygon> polygons) {
+		var helper = new Helpers();
+		Boolean intersects = false;
+		Point start = ls.coordinates().get(0);
+		Point end = ls.coordinates().get(1);
+		var x1 = start.longitude();
+		var x2 = end.longitude();
+		var y1 = start.latitude();
+		var y2 = end.latitude();
+		var m = slope(x1,y1, x2, y2);
+		var b = y1 - m * x1;
+		var dist = helper.euclid(x1, y1, x2, y2);
+			for (double i = 0.0; i < dist; i+=0.000001) {
+				var lngS = start.longitude()+i;
+				var lngE = end.longitude()+i;
+				var latS = m * lngS + b;
+				var latE = m *lngE + b;
+				var startM = Point.fromLngLat(lngS,latS);
+				var endM = Point.fromLngLat(lngE,latE);
+				for (Polygon poly : polygons) {
+			        if (TurfJoins.inside(endM, poly)||TurfJoins.inside(startM, poly)) {
+			            intersects = true;
+			        }
+			    }
+			}
+		    return intersects;
+		}
+	
+	public double slope(double x1, double y1, double x2, double y2) 
+	{ 
+	    return (y2 - y1) / (x2 - x1); 
+	} 
 	
 }

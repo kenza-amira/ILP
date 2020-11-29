@@ -8,8 +8,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -19,8 +17,7 @@ import com.mapbox.geojson.Geometry;
 import com.mapbox.geojson.LineString;
 import com.mapbox.geojson.Point;
 import com.mapbox.geojson.Polygon;
-import com.mapbox.turf.TurfJoins;
-import com.mapbox.turf.TurfMeta;
+
 
 
 /**
@@ -80,13 +77,14 @@ public class App {
 		var responseD = client.send(requestD, BodyHandlers.ofString());
 		var obstacles = FeatureCollection.fromJson(responseD.body());
 		var noFly = obstacles.features();
-		var outer = new ArrayList<Polygon>();
+		
+		var allZones = new ArrayList<Polygon>();
 		for (Feature f: noFly) {
 			var geo = f.geometry();
 			var poly = (Polygon)geo;
-			outer.add(poly);
+			allZones.add(poly);
 		}
-		//System.out.println(outer);
+
 
 		/**
 		 * We have previously formed an array of Sensor objects. Since we now have a
@@ -105,21 +103,6 @@ public class App {
 		var readings = sensHelp.getReadings(sensorList);
 		var lng = sensHelp.getLongitudes(sensorList, start, host, client);
 		var lat = sensHelp.getLatitudes(sensorList, start, host, client);
-/*		for (Feature f: noFly) {
-			var geometry = f.geometry();
-			var poly = (Polygon)geometry;
-			var coord = poly.coordinates();
-			var flat = coord.stream()
-			        .flatMap(List::stream)
-			        .collect(Collectors.toList());
-			for (Point p: flat) {
-				sensorsLocation.add(p);
-				var lt = p.latitude();
-				var ln = p.longitude();
-				lat.add(lt);
-				lng.add(ln);
-			}
-		}*/
 		int length = sensorsLocation.size();
 
 //		int k = 0;
@@ -146,40 +129,33 @@ public class App {
 			var points = new ArrayList<Point>();
 			var nextPoints = search.findNext(first);
 			var possible = new ArrayList<LineString>();
-			//System.out.println(orderedSensors.size());
 			var target = orderedSensors.get(0);
 			for (Point p: nextPoints) {
-				var points1 = new ArrayList<Point>();
+				var temporaryPoints = new ArrayList<Point>();
 				var x1 = (Double)p.latitude();
 				var x2 = (Double)target.latitude();
 				var y1 = (Double)p.longitude();
 				var y2 = (Double)target.longitude();
 				distance.add(helper.euclid(x1, y1, x2, y2));
-				points1.add(first);
-				points1.add(p);
-				possible.add(LineString.fromLngLats(points1));
+				temporaryPoints.add(first);
+				temporaryPoints.add(p);
+				possible.add(LineString.fromLngLats(temporaryPoints));
 			}
 			var k = 0;
 			for (LineString l: possible) {
-				//System.out.println(l);
-				if (Intersects(l,outer)) {
-					//System.out.println(Intersects(l,outer));
+				if (search.Intersects(l,allZones)) {
 					distance.set(k, Double.MAX_VALUE);
 				}
 				k += 1;
 			}
 			int minIndex = distance.indexOf(Collections.min(distance));
 			var nextP = nextPoints.get(minIndex);
-			//var toAdd = possible.get(minIndex);
-			//points.clear();
 			points.add(first);
 			points.add(nextP);
 			lines.add(LineString.fromLngLats(points));
-			//lines.add(toAdd);
 			first = nextP;
 			var feat = Feature.fromGeometry((Geometry)target);
 			if (Collections.min(distance)<0.0002) {
-				//Color(readings.get(0), feat, batteries.get(0));
 				orderedSensors.remove(0);
 				readings.remove(0);
 				batteries.remove(0);
@@ -244,36 +220,6 @@ public class App {
 			feature.addStringProperty("marker-symbol", "cross");
 		}
 	}
-	public static boolean Intersects(LineString ls, List<Polygon> polygons) {
-		var helper = new Helpers();
-		Boolean intersects = false;
-		//System.out.println(ls.coordinates().size());
-		Point start = ls.coordinates().get(0);
-		Point end = ls.coordinates().get(1);
-		var x1 = start.longitude();
-		var x2 = end.longitude();
-		var y1 = start.latitude();
-		var y2 = end.latitude();
-		var m = slope(x1,y1, x2, y2);
-		var b = y1 - m * x1;
-		var dist = helper.euclid(x1, y1, x2, y2);
-			for (double i = 0.0; i < dist; i+=0.000001) {
-				var lngS = start.longitude()+i;
-				var lngE = end.longitude()+i;
-				var latS = m * lngS + b;
-				var latE = m *lngE + b;
-				var startM = Point.fromLngLat(lngS,latS);
-				var endM = Point.fromLngLat(lngE,latE);
-				for (Polygon poly : polygons) {
-			        if (TurfJoins.inside(endM, poly)||TurfJoins.inside(startM, poly)) {
-			            intersects = true;
-			        }
-			    }
-			}
-		    return intersects;
-		}
-	public static double slope(double x1, double y1, double x2, double y2) 
-	{ 
-	    return (y2 - y1) / (x2 - x1); 
-	} 
+	
+	
 }
