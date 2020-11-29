@@ -17,7 +17,6 @@ import com.mapbox.geojson.LineString;
 import com.mapbox.geojson.Point;
 import com.mapbox.geojson.Polygon;
 
-
 public class App {
 	public static void main(String[] args) throws IOException, InterruptedException {
 		
@@ -29,10 +28,11 @@ public class App {
 		final String host = "http://localhost:" + args[6];
 		// Initializing features list that we will need for our geojson output.
 		var features = new ArrayList<Feature>();
-		
-		var helper = new Helpers();
-		var search = new GraphSearch();
-		var sensHelp = new SensorHelpers();
+		// Calling the classes to be able to use the methods later on.
+		final var helper = new Helpers();
+		final var search = new GraphSearch();
+		final var sensHelp = new SensorHelpers();
+		//final var writer = new WriteToFile();
 
 		/**
 		 * This part of the code fetches the information stored in the web server maps
@@ -58,7 +58,9 @@ public class App {
 		 * Here we use GeoJson parsing to retrieve data about the no fly zones. Like
 		 * before, we access information stored on the web server only this time it's in
 		 * the buildings folder. Since it is a geoJSON string. We are able to easily
-		 * retrieve the Feature Collection of our no fly zones.
+		 * retrieve the Feature Collection of our no fly zones. I've also created an
+		 * ArrayList of LineString to store the LineStrings that make our Polygon. This 
+		 * will be helpful later on for the path finding
 		 */
 		String urlDeadZone = host + "/buildings/no-fly-zones.geojson";
 		var requestD = HttpRequest.newBuilder().uri(URI.create(urlDeadZone)).build();
@@ -102,6 +104,7 @@ public class App {
 		//Greedy search algorithm
 		var route = search.greedySearch(dists, length, sensorsLocation);
 		
+		//Reordering our Sensors and their details in the order given by the greedy search (route).
 		var orderedSensors = new ArrayList<Point>();
 		var orderedReadings = new ArrayList<String>();
 		var orderedBatteries= new ArrayList<String>();
@@ -109,7 +112,6 @@ public class App {
 	
 		// Path Finding algorithm
 		var lines = search.findPath(orderedSensors, orderedBatteries, orderedReadings, start, allZones, features);
-		//System.out.println(sum);
 		for (LineString l : lines) {
 			features.add(Feature.fromGeometry((Geometry)l));
 		}
