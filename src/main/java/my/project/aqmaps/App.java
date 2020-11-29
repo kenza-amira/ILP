@@ -91,8 +91,8 @@ public class App {
 		 * For purposes that we will see later on we separate the lng and lat into two arraylists
 		 */
 		
-
-		var sensorsLocation = sensHelp.getSensorLoc(sensorList, host, client, start);
+		var w3wAddress = new ArrayList<String>();
+		var sensorsLocation = sensHelp.getSensorLoc(sensorList, host, client, start, w3wAddress);
 		var batteries = sensHelp.getBatteries(sensorList);
 		var readings = sensHelp.getReadings(sensorList);
 		var lng = sensHelp.getLongitudes(sensorList, start, host, client);
@@ -112,10 +112,13 @@ public class App {
 		var orderedSensors = new ArrayList<Point>();
 		var orderedReadings = new ArrayList<String>();
 		var orderedBatteries= new ArrayList<String>();
-		helper.reorderArrays(route, sensorsLocation, batteries, readings, orderedSensors, orderedBatteries, orderedReadings);
+		var w3wOrdered= new ArrayList<String>();
+		helper.reorderArrays(route, sensorsLocation, batteries, readings, w3wAddress,
+				orderedSensors, orderedBatteries, orderedReadings, w3wOrdered);
 	
 		// Path Finding algorithm
-		var lines = search.findPath(orderedSensors, orderedBatteries, orderedReadings, start, allZones, features);
+		var path = new ArrayList<String>();
+		var lines = search.findPath(orderedSensors, orderedBatteries, orderedReadings, start, allZones, features, path, w3wOrdered);
 		for (LineString l : lines) {
 			features.add(Feature.fromGeometry((Geometry)l));
 		}

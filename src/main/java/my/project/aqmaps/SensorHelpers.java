@@ -12,12 +12,14 @@ import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.Point;
 
 public class SensorHelpers {
-	public ArrayList<Point> getSensorLoc (ArrayList<Sensor> sensorList, String host, HttpClient client, Point start) throws IOException, InterruptedException{
+	public ArrayList<Point> getSensorLoc (ArrayList<Sensor> sensorList, String host, HttpClient client, Point start, ArrayList<String>w3wAddress) throws IOException, InterruptedException{
 		var sensorsLocation = new ArrayList<Point>();
 		sensorsLocation.add(start);
+		w3wAddress.add("dummyAdd");
 		for (Sensor sensor : sensorList) {
 			// We changed the format of the location string to be able to fetch the data
 			// from the server
+			w3wAddress.add(sensor.getLocation());
 			String location = sensor.getLocation().trim().replace(".", "/");
 			String urlLoc = host + "/words/" + location + "/details.json";
 			var requestL = HttpRequest.newBuilder().uri(URI.create(urlLoc)).build();

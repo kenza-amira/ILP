@@ -71,12 +71,14 @@ public class Helpers {
 	}
 	
 	public void reorderArrays (ArrayList<Integer> route, ArrayList<Point> sensorsLocation,
-ArrayList<String> batteries, ArrayList<String> readings, ArrayList<Point> orderedSensors, ArrayList<String> orderedBatteries,
-ArrayList<String> orderedReadings) {
+ArrayList<String> batteries, ArrayList<String> readings, ArrayList<String> w3wAddress,
+ArrayList<Point> orderedSensors, ArrayList<String> orderedBatteries,
+ArrayList<String> orderedReadings, ArrayList<String>w3wOrdered) {
 		for (Integer i : route) {
 			orderedSensors.add(sensorsLocation.get(i));
 			orderedReadings.add(readings.get(i));
 			orderedBatteries.add(batteries.get(i));
+			w3wOrdered.add(w3wAddress.get(i));
 		}
 	}
 

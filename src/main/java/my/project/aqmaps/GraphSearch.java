@@ -47,45 +47,45 @@ public class GraphSearch {
 		var lat = first.latitude();
 		var lng = first.longitude();
 		
-		points.add(Point.fromLngLat(lng +.0003, lat));
-		points.add(Point.fromLngLat(lng +.00029544, lat + 0.00005)); 
-		points.add(Point.fromLngLat(lng +.00028191, lat + 0.00010261)); 
-		points.add(Point.fromLngLat(lng +.00025981, lat + 0.00015));
-		points.add(Point.fromLngLat(lng +.00022981, lat + 0.00019284)); 
-		points.add(Point.fromLngLat(lng +.00019284, lat +.00022981)); 
-		points.add(Point.fromLngLat(lng +.00015, lat +.00025981)); 
-		points.add(Point.fromLngLat(lng +.00010261, lat +.00028191));
-		points.add(Point.fromLngLat(lng +.00005, lat +.00029544)); 
-		points.add(Point.fromLngLat(lng , lat + .0003));
+		points.add(Point.fromLngLat(lng +.0003, lat)); //0°
+		points.add(Point.fromLngLat(lng +.00029544, lat + 0.00005)); //10°
+		points.add(Point.fromLngLat(lng +.00028191, lat + 0.00010261)); //20°
+		points.add(Point.fromLngLat(lng +.00025981, lat + 0.00015)); //30°
+		points.add(Point.fromLngLat(lng +.00022981, lat + 0.00019284)); //40°
+		points.add(Point.fromLngLat(lng +.00019284, lat +.00022981)); //50°
+		points.add(Point.fromLngLat(lng +.00015, lat +.00025981)); //60°
+		points.add(Point.fromLngLat(lng +.00010261, lat +.00028191)); //70°
+		points.add(Point.fromLngLat(lng +.00005, lat +.00029544)); //80°
+		points.add(Point.fromLngLat(lng , lat + .0003)); //90°
 		
-		points.add(Point.fromLngLat(lng -.0003, lat));
-		points.add(Point.fromLngLat(lng -.00029544, lat + 0.00005));
-		points.add(Point.fromLngLat(lng -.00028191, lat + 0.00010261));
-		points.add(Point.fromLngLat(lng -.00025981, lat + 0.00015));
-		points.add(Point.fromLngLat(lng -.00022981, lat + 0.00019284));
-		points.add(Point.fromLngLat(lng -.00019284, lat +.00022981));
-		points.add(Point.fromLngLat(lng -.00015, lat +.00025981));
-		points.add(Point.fromLngLat(lng -.00010261, lat +.00028191));
-		points.add(Point.fromLngLat(lng -.00005, lat +.00029544));
+		points.add(Point.fromLngLat(lng -.00029544, lat + 0.00005)); //100°
+		points.add(Point.fromLngLat(lng -.00028191, lat + 0.00010261)); //110°
+		points.add(Point.fromLngLat(lng -.00025981, lat + 0.00015)); //120°
+		points.add(Point.fromLngLat(lng -.00022981, lat + 0.00019284)); //130°
+		points.add(Point.fromLngLat(lng -.00019284, lat +.00022981)); //140°
+		points.add(Point.fromLngLat(lng -.00015, lat +.00025981)); //150°
+		points.add(Point.fromLngLat(lng -.00010261, lat +.00028191)); //160°
+		points.add(Point.fromLngLat(lng -.00005, lat +.00029544)); //170°
+		points.add(Point.fromLngLat(lng -.0003, lat)); //180°
 		
-		points.add(Point.fromLngLat(lng -.00029544, lat - 0.00005));
-		points.add(Point.fromLngLat(lng -.00028191, lat - 0.00010261));
-		points.add(Point.fromLngLat(lng -.00025981, lat - 0.00015));
-		points.add(Point.fromLngLat(lng -.00022981, lat - 0.00019284));
-		points.add(Point.fromLngLat(lng -.00019284, lat -.00022981));
-		points.add(Point.fromLngLat(lng -.00015, lat -.00025981));
-		points.add(Point.fromLngLat(lng -.00010261, lat -.00028191));
-		points.add(Point.fromLngLat(lng -.00005, lat -.00029544));
-		points.add(Point.fromLngLat(lng , lat - .0003));
+		points.add(Point.fromLngLat(lng -.00005, lat -.00029544)); //190°
+		points.add(Point.fromLngLat(lng -.00010261, lat -.00028191)); //200°
+		points.add(Point.fromLngLat(lng -.00015, lat -.00025981)); //210°
+		points.add(Point.fromLngLat(lng -.00019284, lat -.00022981)); //220°
+		points.add(Point.fromLngLat(lng -.00022981, lat - 0.00019284)); //230°
+		points.add(Point.fromLngLat(lng -.00025981, lat - 0.00015)); //240°
+		points.add(Point.fromLngLat(lng -.00028191, lat - 0.00010261)); //250°
+		points.add(Point.fromLngLat(lng -.00029544, lat - 0.00005)); //260°
+		points.add(Point.fromLngLat(lng , lat - .0003)); //270°
 		
-		points.add(Point.fromLngLat(lng + .00029544, lat - 0.00005));
-		points.add(Point.fromLngLat(lng + .00028191, lat - 0.00010261));
-		points.add(Point.fromLngLat(lng + .00025981, lat - 0.00015));
-		points.add(Point.fromLngLat(lng + .00022981, lat - 0.00019284));
-		points.add(Point.fromLngLat(lng + .00019284, lat -.00022981));
-		points.add(Point.fromLngLat(lng + .00015, lat -.00025981));
-		points.add(Point.fromLngLat(lng + .00010261, lat -.00028191));
-		points.add(Point.fromLngLat(lng + .00005, lat -.00029544));
+		points.add(Point.fromLngLat(lng + .00005, lat -.00029544)); //280°
+		points.add(Point.fromLngLat(lng + .00029544, lat - 0.00005)); //290°
+		points.add(Point.fromLngLat(lng + .00028191, lat - 0.00010261)); //300°
+		points.add(Point.fromLngLat(lng + .00025981, lat - 0.00015)); //310°
+		points.add(Point.fromLngLat(lng + .00022981, lat - 0.00019284)); //320°
+		points.add(Point.fromLngLat(lng + .00019284, lat -.00022981)); //330°
+		points.add(Point.fromLngLat(lng + .00015, lat -.00025981)); //340°
+		points.add(Point.fromLngLat(lng + .00010261, lat -.00028191)); //350°
 		
 		return points;
 	}	
@@ -119,7 +119,8 @@ public class GraphSearch {
 	} 
 	
 	public ArrayList<LineString> findPath( ArrayList<Point> orderedSensors, ArrayList<String> orderedBatteries,
-			ArrayList<String> orderedReadings, Point start, ArrayList<LineString>allZones, ArrayList<Feature> features){
+			ArrayList<String> orderedReadings, Point start, ArrayList<LineString>allZones, 
+			ArrayList<Feature> features, ArrayList<String> path, ArrayList<String> w3wOrdered){
 		// Path Finding algorithm
 				int sum = 0;
 				var first = start;
@@ -131,12 +132,14 @@ public class GraphSearch {
 				orderedSensors.remove(0);
 				orderedBatteries.remove(0);
 				orderedReadings.remove(0);
+				w3wOrdered.remove(0);
 				
 				//Added starting point to the end to attempt closed loop
 				orderedSensors.add(start);
 				orderedBatteries.add("0");
 				orderedReadings.add("null");
 				while (sum < 150 && !orderedSensors.isEmpty()) {
+					var st = String.valueOf(sum+1) + ",";
 					var distance = new ArrayList<Double>();
 					var points = new ArrayList<Point>();
 					var nextPoints = findNext(first);
@@ -164,17 +167,26 @@ public class GraphSearch {
 					var nextP = nextPoints.get(minIndex);
 					points.add(first);
 					points.add(nextP);
+					st = st + String.valueOf(first.longitude()) + "," + String.valueOf(first.latitude()) + "," + 
+							String.valueOf(minIndex*10) + "," + String.valueOf(nextP.longitude()) +
+							"," + String.valueOf(nextP.latitude()) + ",";
 					lines.add(LineString.fromLngLats(points));
 					first = nextP;
 					var feat = Feature.fromGeometry((Geometry)target);
 					if (Collections.min(distance)<0.0002 && orderedSensors.size()!=1) {
 						var coloredFeature = sensHelp.Color(orderedReadings.get(0), feat, orderedBatteries.get(0));
+						st = st + String.valueOf(w3wOrdered.get(0));
 						orderedSensors.remove(0);
 						orderedReadings.remove(0);
 						orderedBatteries.remove(0);
+						w3wOrdered.remove(0);
 						features.add(coloredFeature);
+					} else {
+						st = st + "null";
 					}
 					sum += 1;
+					//System.out.println(st);
+					path.add(st);
 				}
 				return lines;
 	}
