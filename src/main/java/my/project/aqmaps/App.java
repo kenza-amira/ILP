@@ -72,11 +72,11 @@ public class App {
 		var obstacles = FeatureCollection.fromJson(responseD.body());
 		var noFly = obstacles.features();
 		
-		var allZones = new ArrayList<Polygon>();
+		var allZones = new ArrayList<LineString>();
 		for (Feature f: noFly) {
 			var geo = f.geometry();
 			var poly = (Polygon)geo;
-			allZones.add(poly);
+			allZones.add(poly.outer());
 		}
 
 
@@ -156,7 +156,7 @@ public class App {
 			}
 			var k = 0;
 			for (LineString l: possible) {
-				if (search.Intersects(l,allZones)) {
+				if (search.isIntersecting(l,allZones)) {
 					distance.set(k, Double.MAX_VALUE);
 				}
 				k += 1;
