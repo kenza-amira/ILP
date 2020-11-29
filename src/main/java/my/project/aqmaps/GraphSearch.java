@@ -20,11 +20,9 @@ public class GraphSearch {
 		queue.add(0);
 		route.add(0);
 		var helper = new Helpers();
-		//System.out.println(dists);
 		while (!queue.isEmpty() && counter < length) {
 			counter += 1;
 			Integer i = queue.remove();
-			// System.out.println(i);
 			visited.add(i);
 			double[] next = dists[i];
 			for (Integer x : visited) {
@@ -34,14 +32,11 @@ public class GraphSearch {
 			for (Double d : next) {
 				value = (d == 0) ? value : Math.min(value, d);
 			}
-			// System.out.println(value);
 			int index = helper.findIndex(next, value);
-			// System.out.println(index);
 			queue.add(index);
 			visited.add(index);
 			route.add(index);
 		}
-		//System.out.println(route.size());	
 		return route;
 	}
 	

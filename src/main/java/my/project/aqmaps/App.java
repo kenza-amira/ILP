@@ -35,12 +35,6 @@ public class App {
 		final String host = "http://localhost:" + args[6];
 		// Initializing features list that we will need for our geojson output.
 		var features = new ArrayList<Feature>();
-		// Using the 6th argument as the random number seed for the application.
-		try {
-			int seed = Integer.parseInt(args[5]);
-		} catch (NumberFormatException nfe) {
-			throw new IllegalArgumentException("The seed entered, " + args[5] + " is invalid.", nfe);
-		}
 		
 		var helper = new Helpers();
 		var search = new GraphSearch();
@@ -139,6 +133,10 @@ public class App {
 		orderedBatteries.remove(0);
 		orderedReadings.remove(0);
 		
+		//Added starting point to the end to attempt closed loop
+		orderedSensors.add(start);
+		orderedBatteries.add("0");
+		orderedReadings.add("null");
 		while (sum < 150 && !orderedSensors.isEmpty()) {
 			var distance = new ArrayList<Double>();
 			var points = new ArrayList<Point>();
@@ -170,7 +168,7 @@ public class App {
 			lines.add(LineString.fromLngLats(points));
 			first = nextP;
 			var feat = Feature.fromGeometry((Geometry)target);
-			if (Collections.min(distance)<0.0002) {
+			if (Collections.min(distance)<0.0002 && orderedSensors.size()!=1) {
 				Color(orderedReadings.get(0), feat, orderedBatteries.get(0));
 				orderedSensors.remove(0);
 				orderedReadings.remove(0);
