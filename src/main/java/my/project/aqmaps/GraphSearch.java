@@ -127,6 +127,7 @@ public class GraphSearch {
 				var lines = new ArrayList<LineString>();
 				var helper = new Helpers();
 				var sensHelp = new SensorHelpers();
+				Point stop = null;
 				
 				//Removing start from the arrays as we don't need it to be there for the pathfinding algorithm
 				orderedSensors.remove(0);
@@ -135,9 +136,12 @@ public class GraphSearch {
 				w3wOrdered.remove(0);
 				
 				//Added starting point to the end to attempt closed loop
-				orderedSensors.add(start);
+/*				var lng = start.longitude() +.00029544;
+				var lat = start.latitude() + 0.00005;
+				orderedSensors.add(Point.fromLngLat(lng, lat));
 				orderedBatteries.add("0");
-				orderedReadings.add("null");
+				orderedReadings.add("null");*/
+				
 				while (sum < 150 && !orderedSensors.isEmpty()) {
 					var st = String.valueOf(sum+1) + ",";
 					var distance = new ArrayList<Double>();
@@ -180,14 +184,28 @@ public class GraphSearch {
 						orderedReadings.remove(0);
 						orderedBatteries.remove(0);
 						w3wOrdered.remove(0);
+						if (orderedSensors.get(0) == stop) {
+							path.add(st);
+							System.out.println(sum);
+							return lines;
+						}
 						features.add(coloredFeature);
 					} else {
 						st = st + "null";
+					}
+					if (orderedSensors.size()==1) {
+						orderedSensors.add(0,start);
+						orderedBatteries.add(0,"0");
+						orderedReadings.add(0,"null");
+						w3wOrdered.add(0,"null");
+						stop = orderedSensors.get(1);
 					}
 					sum += 1;
 					//System.out.println(st);
 					path.add(st);
 				}
+	
+				System.out.print(sum);
 				return lines;
 	}
 	

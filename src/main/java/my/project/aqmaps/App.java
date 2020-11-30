@@ -99,9 +99,8 @@ public class App {
 		var lat = sensHelp.getLatitudes(sensorList, start, host, client);
 		int length = sensorsLocation.size();
 
-		features.addAll(noFly);
-		
-		
+		//features.addAll(noFly);
+
 		//Getting distances from all points to every other points
 		double[][] dists = helper.generateDistanceMatrix(lng, lat, length);
 		

@@ -34,6 +34,8 @@ public class SensorHelpers {
 			var loc = Point.fromLngLat(details.coordinates.lng, details.coordinates.lat);
 			sensorsLocation.add(loc);
 		}
+		//sensorsLocation.add(start);
+		//w3wAddress.add("dummyAdd");
 		return sensorsLocation;
 	}
 	
@@ -43,6 +45,7 @@ public class SensorHelpers {
 		for (Sensor sensor : sensorList) {
 			batteries.add(sensor.getBattery());
 		}
+		//batteries.add("0");
 		return batteries;
 	}
 	
@@ -52,6 +55,7 @@ public class SensorHelpers {
 		for (Sensor sensor : sensorList) {
 			readings.add(sensor.getReading());
 		}
+		//readings.add("NaN");
 		return readings;
 	}
 	
@@ -74,6 +78,7 @@ public class SensorHelpers {
 			var details = new Gson().fromJson(responseL.body(), LocationDetails.class);
 			lng.add(details.coordinates.lng);
 		}
+		//lng.add(start.longitude());
 		return lng;
 	}
 	
@@ -96,6 +101,7 @@ public class SensorHelpers {
 			var details = new Gson().fromJson(responseL.body(), LocationDetails.class);
 			lat.add(details.coordinates.lat);
 		}
+		//lat.add(start.latitude());
 		return lat;
 	}
 	
