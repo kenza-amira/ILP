@@ -26,6 +26,7 @@ public class App {
 		final var year = args[2];
 		final var month = args[1];
 		final var day = args[0];
+		final var seed = Double.parseDouble(args[6]);
 		// We only need one HttpClient, shared between all HttpRequests
 		final HttpClient client = HttpClient.newHttpClient();
 		// Saving this string as it will be needed for multiple URL's.
@@ -98,6 +99,7 @@ public class App {
 		var lng = sensHelp.getLongitudes(sensorList, start, host, client);
 		var lat = sensHelp.getLatitudes(sensorList, start, host, client);
 		int length = sensorsLocation.size();
+		
 
 		//features.addAll(noFly);
 
@@ -105,7 +107,7 @@ public class App {
 		double[][] dists = helper.generateDistanceMatrix(lng, lat, length);
 		
 		//Greedy search algorithm
-		var route = search.greedySearch(dists, length, sensorsLocation);
+		var route = search.greedySearch(dists, length, sensorsLocation, start);
 		
 		//Reordering our Sensors and their details in the order given by the greedy search (route).
 		var orderedSensors = new ArrayList<Point>();
