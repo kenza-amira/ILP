@@ -114,17 +114,36 @@ public class GraphSearch {
 			for (Double d : next) {
 				value = (d == 0) ? value : Math.min(value, d);
 			}
-
-			// We find the index of that value and add it to our queue, route and visited
-			// arrays.
-			int index = helper.findIndex(next, value);
+			/* We find the indexes of that value then randomly select one 
+			 * and add it to our queue, route and visited arrays.  */
+			var indexes = helper.indexOfAll(value, next);
+			Random randomizer = new Random(seed);
+			int index = indexes.get(randomizer.nextInt(indexes.size()));
 			queue.add(index);
 			visited.add(index);
 			route.add(index);
 		}
 		return route;
 	}
-
+	
+	public void trySwap(ArrayList<Integer> route, double[][] dists, int length) {
+		for (int i = 0; i<route.size(); i++) {
+				
+				double normalCost = dists[i][Math.floorMod((i-1), length)];
+				normalCost += dists[Math.floorMod(i+2, length)][Math.floorMod(i+1, length)];
+				
+				double changedCost = dists[i][Math.floorMod(i+2, length)];
+				changedCost += dists[Math.floorMod(i+1, length)][Math.floorMod(i-1, length)];
+				
+				if (changedCost < normalCost) {
+					var a = route.get(i);
+					var b = route.get(Math.floorMod(i+1, length));
+					
+					route.set(i, b);
+					route.set(Math.floorMod(i+1, length),a);
+				}
+			}
+		}
 	/**
 	 * This method finds the next possible points given a starting point. The drone
 	 * cannot fly in an arbitrary direction. It can only be sent in a direction
@@ -226,15 +245,15 @@ public class GraphSearch {
 
 				if (visited.contains(possible.get(k))){
 					distance.set(k, Double.MAX_VALUE);
-					visitedP.add(first);
-					visitedP.add(tmp);
+					//visitedP.add(first);
+					//visitedP.add(tmp);
 				}
 				else if (isIntersecting(possible.get(k), allZones)) {
 					distance.set(k, Double.MAX_VALUE);
 					//System.out.print(k+",");
 				} else if(visitedP.contains(tmp)) {
 					distance.set(k, Double.MAX_VALUE);
-					visitedP.add(tmp);
+					//visitedP.add(tmp);
 				}
 			}
 			
@@ -279,27 +298,80 @@ public class GraphSearch {
 		return lines;
 	}
 	
-/*	public ArrayList<Double> lookAhead(ArrayList<LineString> possible, Point target,ArrayList<LineString> allZones ){
-		var result = new ArrayList<Double>();
-		for (LineString l: possible) {
-			var distance = new ArrayList<Double>();
-			var helper = new Helpers();
-			//var possibilities = new ArrayList<LineString>();
-			Point p = l.coordinates().get(1);
-			var nextPoints = findNext(p);
-			for (Point point: nextPoints) {
-				//var temporaryPoints = new ArrayList<Point>();
-				var x1 = (Double) point.longitude();
-				var x2 = (Double) target.longitude();
-				var y1 = (Double) point.latitude();
-				var y2 = (Double) target.latitude();
-				distance.add(helper.euclid(x1, y1, x2, y2));
-				temporaryPoints.add(p);
-				temporaryPoints.add(point);
-				possibilities.add(LineString.fromLngLats(temporaryPoints));
-			}		
-			result.add(Collections.max(distance));
+	
+	public ArrayList<Integer> AheadSearch(double[][] dists, int length) {
+		final var helper = new Helpers();
+		// To keep track of the visited sensors
+		var visited = new ArrayList<Integer>();
+		
+		double[][] lookAhead = new double [length][length];
+		var total = new double [length];
+
+		// Initializing our output and queue
+		var route = new ArrayList<Integer>();
+		Queue<Integer> queue = new LinkedList<Integer>();
+
+		/*
+		 * This part takes the starting point of the drone (given by the command line)
+		 * and looks for the closest sensor. The closest sensor is then added to the
+		 * queue and the route.
+		 */
+		var distance = new ArrayList<Double>();
+		for (Point p : sensorsLocation) {
+			var d = helper.euclid(p.longitude(), p.latitude(), start.longitude(), start.latitude());
+			distance.add(d);
+		}
+		// Get index first occurrence of the minimum value in the array
+		int minIndex = distance.indexOf(Collections.min(distance));
+		route.add(minIndex);
+		queue.add(minIndex);
+
+		/*
+		 * This while loop keeps looping until we run out of sensors. It takes a sensor
+		 * looks for the closest sensors. It then adds the found sensor to the queue and
+		 * the same is done until we have a route.
+		 */
+		int counter = 1;
+		while (counter < length) {
+			counter += 1;
+			Integer i = queue.remove();
+			visited.add(i);
+			double[] next = dists[i];
+			// If the Sensor is already visited we set the distance from our current sensor
+			// to 0
+			for (Integer x : visited) {
+				next[x] = 0.0;
 			}
-		return result;
-	} */
+			
+			for (int y = 0; y < next.length; y ++) {
+				lookAhead[y] = dists[y];
+			}
+			
+			for (int x = 0; x <next.length; x ++ ) {
+				if (next[x]!=0) {
+					double value = Double.MAX_VALUE;
+					for (Double d : lookAhead[x]) {
+						value = (d == 0) ? value : Math.min(value, d);
+					}
+					total[x] = next[x]+value;
+				} else {
+					total[x] = 0;
+				}
+			}
+			// The value that we will pick is the minimum non-zero value.
+			double value = Double.MAX_VALUE;
+			for (Double d : total) {
+				value = (d == 0) ? value : Math.min(value, d);
+			}
+			/* We find the indexes of that value then randomly select one 
+			 * and add it to our queue, route and visited arrays.  */
+			var indexes = helper.indexOfAll(value, total);
+			Random randomizer = new Random(seed);
+			int index = indexes.get(randomizer.nextInt(indexes.size()));
+			queue.add(index);
+			visited.add(index);
+			route.add(index);
+		}
+		return route;
+	}
 }

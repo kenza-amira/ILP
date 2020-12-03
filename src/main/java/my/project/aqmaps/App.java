@@ -88,8 +88,8 @@ public class App {
 		// Greedy Search Algorithm
 		final var search = new GraphSearch(orderedSensors, orderedBatteries, orderedReadings, start, allZones, seed,
 				w3wOrdered, sensorsLocation);
-		var route = search.greedySearch(dists, length);
-
+		//var route = search.greedySearch(dists, length);
+		var route = search.AheadSearch(dists, length);
 		// Reordering our Sensors and their details in the order given by the greedy
 		// search (route).
 		helper.reorderArrays(route, sensorsLocation, batteries, readings, w3wAddress, orderedSensors, orderedBatteries,

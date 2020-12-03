@@ -72,6 +72,16 @@ public class Helpers {
 		}
 		return indexList;
 	}
+	
+	public ArrayList<Integer> indexOfAll(Double value, double[] distance) {
+		var indexList = new ArrayList<Integer>();
+		for (int i = 0; i < distance.length; i++) {
+			if (value.equals(distance[i])) {
+				indexList.add(i);
+			}
+		}
+		return indexList;
+	}
 
 	/**
 	 * This method allows us to generate a Distance matrix between all points in our
