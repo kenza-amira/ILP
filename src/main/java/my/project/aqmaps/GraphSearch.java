@@ -13,7 +13,28 @@ import com.mapbox.geojson.LineString;
 import com.mapbox.geojson.Point;
 
 public class GraphSearch {
-	public ArrayList<Integer> greedySearch(double[][] dists, int length, ArrayList<Point> sensorsLocation, Point start) {
+	private ArrayList<Point> sensorsLocation;
+	private Point start;
+	private ArrayList<String> orderedBatteries;
+	private ArrayList<String> orderedReadings;
+	private ArrayList<String> w3wOrdered;
+	private ArrayList<LineString> allZones;
+	private long seed;
+	private ArrayList<Point> orderedSensors;
+	public GraphSearch(ArrayList<Point> orderedSensors, ArrayList<String> orderedBatteries,
+			ArrayList<String> orderedReadings, Point start, ArrayList<LineString> allZones, long seed, 
+			ArrayList<String> w3wOrdered, ArrayList<Point> sensorsLocation) {
+		this.orderedBatteries = orderedBatteries;
+		this.orderedReadings = orderedReadings;
+		this.w3wOrdered =  w3wOrdered;
+		this.sensorsLocation = sensorsLocation;
+		this.allZones = allZones;
+		this.start = start;
+		this.seed = seed;
+		this.orderedSensors = orderedSensors; 
+		
+	}
+	public ArrayList<Integer> greedySearch(double[][] dists, int length) {
 		var visited = new ArrayList<Integer>();
 		var route = new ArrayList<Integer>();
 		var distance = new ArrayList<Double>();
@@ -86,9 +107,7 @@ public class GraphSearch {
 		return false;
 	}
 
-	public ArrayList<LineString> findPath(ArrayList<Point> orderedSensors, ArrayList<String> orderedBatteries,
-			ArrayList<String> orderedReadings, Point start, ArrayList<LineString> allZones, ArrayList<Feature> features,
-			ArrayList<String> path, ArrayList<String> w3wOrdered, long seed) {
+	public ArrayList<LineString> findPath(ArrayList<Feature> features, ArrayList<String> path) {
 		
 		// Path Finding algorithm
 		int sum = 0;

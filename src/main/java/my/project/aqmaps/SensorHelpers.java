@@ -12,7 +12,20 @@ import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.Point;
 
 public class SensorHelpers {
-	public ArrayList<Point> getSensorLoc (ArrayList<Sensor> sensorList, String host, HttpClient client, Point start, ArrayList<String>w3wAddress) throws IOException, InterruptedException{
+	private ArrayList<Sensor> sensorList;
+	private String host;
+	final HttpClient client = HttpClient.newHttpClient();
+	
+	public SensorHelpers(ArrayList<Sensor>sensorList, String host) {
+		this.sensorList = sensorList;
+		this.host = host;
+	}
+	
+	public SensorHelpers() {
+		this.sensorList = null;
+		this.host = null;
+	}
+	public ArrayList<Point> getSensorLoc (ArrayList<String>w3wAddress) throws IOException, InterruptedException{
 		var sensorsLocation = new ArrayList<Point>();
 		for (Sensor sensor : sensorList) {
 			// We changed the format of the location string to be able to fetch the data
@@ -35,7 +48,7 @@ public class SensorHelpers {
 		return sensorsLocation;
 	}
 	
-	public ArrayList<String> getBatteries(ArrayList<Sensor> sensorList){
+	public ArrayList<String> getBatteries(){
 		var batteries = new ArrayList<String>();
 		for (Sensor sensor : sensorList) {
 			batteries.add(sensor.getBattery());
@@ -43,7 +56,7 @@ public class SensorHelpers {
 		return batteries;
 	}
 	
-	public ArrayList<String> getReadings(ArrayList<Sensor> sensorList){
+	public ArrayList<String> getReadings(){
 		var readings = new ArrayList<String>();
 		for (Sensor sensor : sensorList) {
 			readings.add(sensor.getReading());
@@ -51,9 +64,8 @@ public class SensorHelpers {
 		return readings;
 	}
 	
-	public ArrayList<Double> getLongitudes(ArrayList<Sensor> sensorList, Point start, String host, HttpClient client) throws IOException, InterruptedException{
+	public ArrayList<Double> getLongitudes() throws IOException, InterruptedException{
 		var lng = new ArrayList<Double>();
-		//lng.add(start.longitude());
 		for (Sensor sensor : sensorList) {
 			// We changed the format of the location string to be able to fetch the data
 			// from the server
@@ -73,9 +85,8 @@ public class SensorHelpers {
 		return lng;
 	}
 	
-	public ArrayList<Double> getLatitudes(ArrayList<Sensor> sensorList, Point start, String host, HttpClient client) throws IOException, InterruptedException{
+	public ArrayList<Double> getLatitudes() throws IOException, InterruptedException{
 		var lat = new ArrayList<Double>();
-		//lat.add(start.latitude());
 		for (Sensor sensor : sensorList) {
 			// We changed the format of the location string to be able to fetch the data
 			// from the server
