@@ -26,7 +26,7 @@ public class App {
 		final var year = args[2];
 		final var month = args[1];
 		final var day = args[0];
-		final var seed = Double.parseDouble(args[6]);
+		final var seed = Long.parseLong(args[6]);
 		// We only need one HttpClient, shared between all HttpRequests
 		final HttpClient client = HttpClient.newHttpClient();
 		// Saving this string as it will be needed for multiple URL's.
@@ -119,7 +119,7 @@ public class App {
 	
 		// Path Finding algorithm
 		var path = new ArrayList<String>();
-		var lines = search.findPath(orderedSensors, orderedBatteries, orderedReadings, start, allZones, features, path, w3wOrdered);
+		var lines = search.findPath(orderedSensors, orderedBatteries, orderedReadings, start, allZones, features, path, w3wOrdered, seed);
 		for (LineString l : lines) {
 			features.add(Feature.fromGeometry((Geometry)l));
 		}

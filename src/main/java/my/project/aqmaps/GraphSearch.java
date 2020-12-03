@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.Random;
 
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.Geometry;
@@ -87,12 +88,14 @@ public class GraphSearch {
 
 	public ArrayList<LineString> findPath(ArrayList<Point> orderedSensors, ArrayList<String> orderedBatteries,
 			ArrayList<String> orderedReadings, Point start, ArrayList<LineString> allZones, ArrayList<Feature> features,
-			ArrayList<String> path, ArrayList<String> w3wOrdered) {
+			ArrayList<String> path, ArrayList<String> w3wOrdered, long seed) {
 		
 		// Path Finding algorithm
 		int sum = 0;
-		var first = Point.fromLngLat(start.longitude(), start.latitude());
+		Point first = Point.fromLngLat(start.longitude(), start.latitude());
 		var lines = new ArrayList<LineString>();
+		var visited = new ArrayList<LineString>();
+		var visitedP = new ArrayList<Point>();
 		var helper = new Helpers();
 		var sensHelp = new SensorHelpers();
 
@@ -108,26 +111,42 @@ public class GraphSearch {
 			var target = orderedSensors.get(0);
 			for (Point p : nextPoints) {
 				var temporaryPoints = new ArrayList<Point>();
-				var x1 = (Double) p.latitude();
-				var x2 = (Double) target.latitude();
-				var y1 = (Double) p.longitude();
-				var y2 = (Double) target.longitude();
+				var x1 = (Double) p.longitude();
+				var x2 = (Double) target.longitude();
+				var y1 = (Double) p.latitude();
+				var y2 = (Double) target.latitude();
 				distance.add(helper.euclid(x1, y1, x2, y2));
 				temporaryPoints.add(first);
 				temporaryPoints.add(p);
 				possible.add(LineString.fromLngLats(temporaryPoints));
 		}
-
-/*			for (int k = 0; k< possible.size(); k++) {
-				if (isIntersecting(possible.get(k), allZones)) {
-					distance.set(k, Double.MAX_VALUE);
-					System.out.print(k+",");
-				}
+			var distanceAhead = lookAhead(possible, target, allZones);
+			System.out.println("Distance" + distanceAhead.size());
+			/*for (Double d: distanceAhead) {
+				System.out.println(d);
 			}*/
+			for (int k = 0; k< possible.size(); k++) {
+				var tmp = possible.get(k).coordinates().get(0);
 
-			int minIndex = distance.indexOf(Collections.min(distance));
-			System.out.println(":" +minIndex);
+				if (visited.contains(possible.get(k))){
+					distance.set(k, Double.MAX_VALUE);
+					visitedP.add(first);
+					visitedP.add(tmp);
+				}
+				else if (isIntersecting(possible.get(k), allZones)) {
+					distance.set(k, Double.MAX_VALUE);
+					//System.out.print(k+",");
+				} else if(visitedP.contains(tmp)) {
+					distance.set(k, Double.MAX_VALUE);
+					visitedP.add(tmp);
+				}
+			}
+			
+			var indexes = indexOfAll(Collections.min(distance), distance);
+			Random randomizer = new Random(seed);
+			var minIndex = indexes.get(randomizer.nextInt(indexes.size()));
 			var nextP = nextPoints.get(minIndex);
+			
 			points.add(first);
 			points.add(nextP);
 			st = st + String.valueOf(first.longitude()) + "," + String.valueOf(first.latitude()) + ","
@@ -135,10 +154,10 @@ public class GraphSearch {
 					+ String.valueOf(nextP.latitude()) + ",";
 			
 			lines.add(LineString.fromLngLats(points));
+			visited.add(LineString.fromLngLats(points));
 			first = nextP;
-			
 			var feat = Feature.fromGeometry((Geometry) target);
-			if (Collections.min(distance) < 0.0002 && orderedSensors.get(0) == start) {
+			if (Collections.min(distance) < 0.0003 && orderedSensors.get(0) == start) {
 				st += "null";
 				path.add(st);
 				System.out.println("Moves: "+ sum);
@@ -160,6 +179,41 @@ public class GraphSearch {
 			path.add(st);
 		}
 		System.out.println("150 reached");
+		//start = first;
 		return lines;
+	}
+	
+	public ArrayList<Double> lookAhead(ArrayList<LineString> possible, Point target,ArrayList<LineString> allZones ){
+		var result = new ArrayList<Double>();
+		for (LineString l: possible) {
+			var distance = new ArrayList<Double>();
+			var helper = new Helpers();
+			//var possibilities = new ArrayList<LineString>();
+			Point p = l.coordinates().get(1);
+			var nextPoints = findNext(p);
+			for (Point point: nextPoints) {
+				//var temporaryPoints = new ArrayList<Point>();
+				var x1 = (Double) point.longitude();
+				var x2 = (Double) target.longitude();
+				var y1 = (Double) point.latitude();
+				var y2 = (Double) target.latitude();
+				distance.add(helper.euclid(x1, y1, x2, y2));
+/*				temporaryPoints.add(p);
+				temporaryPoints.add(point);
+				possibilities.add(LineString.fromLngLats(temporaryPoints));*/
+			}		
+			result.add(Collections.max(distance));
+			}
+		return result;
+	}
+	
+	public  ArrayList<Integer> indexOfAll(Double value, ArrayList<Double> distance) {
+	    var indexList = new ArrayList<Integer>();
+	    for (int i = 0; i < distance.size(); i++) {
+	        if (value.equals(distance.get(i))) {
+	            indexList.add(i);
+	        }
+	    }
+	    return indexList;
 	}
 }
