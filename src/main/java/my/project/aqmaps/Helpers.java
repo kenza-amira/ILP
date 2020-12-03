@@ -57,6 +57,23 @@ public class Helpers {
 	}
 
 	/**
+	 * This method finds all the indexes of a given value
+	 * 
+	 * @param value    The value we are looking for (double)
+	 * @param distance The Array in which we look for the value (double)
+	 * @return An ArrayList of Integer with the indexes that store that value.
+	 */
+	public ArrayList<Integer> indexOfAll(Double value, ArrayList<Double> distance) {
+		var indexList = new ArrayList<Integer>();
+		for (int i = 0; i < distance.size(); i++) {
+			if (value.equals(distance.get(i))) {
+				indexList.add(i);
+			}
+		}
+		return indexList;
+	}
+
+	/**
 	 * This method allows us to generate a Distance matrix between all points in our
 	 * list of Sensors.
 	 * 

@@ -12,6 +12,13 @@ import com.mapbox.geojson.Geometry;
 import com.mapbox.geojson.LineString;
 import com.mapbox.geojson.Point;
 
+/**
+ * GraphSearch Class Description This class contains all the methods related to
+ * graph search. It has: - A Greedy Search Algorithm - A method to find the best
+ * path between points - A method to find the next points reachable given a
+ * point. - A method to verify if lines are intersecting
+ *
+ */
 public class GraphSearch {
 	private ArrayList<Point> sensorsLocation;
 	private Point start;
@@ -21,48 +28,95 @@ public class GraphSearch {
 	private ArrayList<LineString> allZones;
 	private long seed;
 	private ArrayList<Point> orderedSensors;
+
+	/**
+	 * This is the class constructor it takes multiple arguments that have been
+	 * previously processed by other classes.
+	 * 
+	 * @param orderedSensors   ArrayList of ordered sensors locations (GeoJson
+	 *                         Point)
+	 * @param orderedBatteries ArrayList of ordered battery readings (String)
+	 * @param orderedReadings  ArrayList of ordered air quality readings (String)
+	 * @param start            Starting point input (GeoJson Point)
+	 * @param allZones         ArrayList of the LineStrings constituting the no fly
+	 *                         zones (GeoJson LineString)
+	 * @param seed             For controlled randomness (Long)
+	 * @param w3wOrdered       ArrayList of ordered what 3 words locations (String)
+	 * @param sensorsLocation  ArrayList of original (unordered) sensors locations
+	 *                         (GeoJson Point)
+	 */
 	public GraphSearch(ArrayList<Point> orderedSensors, ArrayList<String> orderedBatteries,
-			ArrayList<String> orderedReadings, Point start, ArrayList<LineString> allZones, long seed, 
+			ArrayList<String> orderedReadings, Point start, ArrayList<LineString> allZones, long seed,
 			ArrayList<String> w3wOrdered, ArrayList<Point> sensorsLocation) {
 		this.orderedBatteries = orderedBatteries;
 		this.orderedReadings = orderedReadings;
-		this.w3wOrdered =  w3wOrdered;
+		this.w3wOrdered = w3wOrdered;
 		this.sensorsLocation = sensorsLocation;
 		this.allZones = allZones;
 		this.start = start;
 		this.seed = seed;
-		this.orderedSensors = orderedSensors; 
-		
+		this.orderedSensors = orderedSensors;
+
 	}
+
+	/**
+	 * This method implements a greedy search algorithm
+	 * 
+	 * @param dists  Distance matrix (length x length) that stores all the distances
+	 *               between one point to another
+	 * @param length Number of sensors to be sorted
+	 * @return An ArrayList of indexes that we will use to sort the arrays
+	 * @see my.project.aqmaps.Helpers#reorderArrays()
+	 */
 	public ArrayList<Integer> greedySearch(double[][] dists, int length) {
+		final var helper = new Helpers();
+		// To keep track of the visited sensors
 		var visited = new ArrayList<Integer>();
+
+		// Initializing our output and queue
 		var route = new ArrayList<Integer>();
-		var distance = new ArrayList<Double>();
-		var helper = new Helpers();
-		int counter = 1;
-		
 		Queue<Integer> queue = new LinkedList<Integer>();
-		for (Point p: sensorsLocation) {
+
+		/*
+		 * This part takes the starting point of the drone (given by the command line)
+		 * and looks for the closest sensor. The closest sensor is then added to the
+		 * queue and the route.
+		 */
+		var distance = new ArrayList<Double>();
+		for (Point p : sensorsLocation) {
 			var d = helper.euclid(p.longitude(), p.latitude(), start.longitude(), start.latitude());
 			distance.add(d);
 		}
+		// Get index first occurrence of the minimum value in the array
 		int minIndex = distance.indexOf(Collections.min(distance));
-		
 		route.add(minIndex);
 		queue.add(minIndex);
-		
+
+		/*
+		 * This while loop keeps looping until we run out of sensors. It takes a sensor
+		 * looks for the closest sensors. It then adds the found sensor to the queue and
+		 * the same is done until we have a route.
+		 */
+		int counter = 1;
 		while (counter < length) {
 			counter += 1;
 			Integer i = queue.remove();
 			visited.add(i);
 			double[] next = dists[i];
+			// If the Sensor is already visited we set the distance from our current sensor
+			// to 0
 			for (Integer x : visited) {
 				next[x] = 0.0;
 			}
+
+			// The value that we will pick is the minimum non-zero value.
 			double value = Double.MAX_VALUE;
 			for (Double d : next) {
 				value = (d == 0) ? value : Math.min(value, d);
 			}
+
+			// We find the index of that value and add it to our queue, route and visited
+			// arrays.
 			int index = helper.findIndex(next, value);
 			queue.add(index);
 			visited.add(index);
@@ -71,11 +125,25 @@ public class GraphSearch {
 		return route;
 	}
 
+	/**
+	 * This method finds the next possible points given a starting point. The drone
+	 * cannot fly in an arbitrary direction. It can only be sent in a direction
+	 * which is a multiple of ten degrees where by convention 0 means East, 90 means
+	 * North, 180 means West and 270 means South.
+	 * 
+	 * @param first The starting point (GeoJson Point)
+	 * @return An ArrayList with all the possible next points (GeoJson Point)
+	 */
 	public ArrayList<Point> findNext(Point first) {
 		var points = new ArrayList<Point>();
-		var copy = first;
-		var lat = copy.latitude();
-		var lng = copy.longitude();
+		var lat = first.latitude();
+		var lng = first.longitude();
+		/*
+		 * Knowing that for each move the drone travels a distance t, which is 0.0003
+		 * degrees, we can calculate the drone's next position using simple planar
+		 * trigonometry. The code below implements a unit circle and finds all 36
+		 * options.
+		 */
 		for (int angle = 0; angle < 350; angle += 10) {
 			var lngAdd = 0.0003 * Math.cos((Math.toRadians(angle)));
 			var latAdd = 0.0003 * Math.sin((Math.toRadians(angle)));
@@ -84,13 +152,25 @@ public class GraphSearch {
 		return points;
 	}
 
+	/**
+	 * This method is checking for intersections between a LineString and a
+	 * collection of LineStrings.
+	 * 
+	 * @param l  The LineString that we are interested in
+	 * @param ls The collection of LineString that we check against
+	 * @return A boolean. True if it is intersecting and False if it is not.
+	 */
 	public boolean isIntersecting(LineString l, ArrayList<LineString> ls) {
 		Point start1 = l.coordinates().get(0);
 		Point end1 = l.coordinates().get(1);
+
 		var x1 = start1.longitude();
-		var x2 = end1.longitude();
 		var y1 = start1.latitude();
+
+		var x2 = end1.longitude();
 		var y2 = end1.latitude();
+		
+		//Checking for intersection for every LineString. We use the Java Line2D API.
 		for (LineString s : ls) {
 			for (int i = 0; i < s.coordinates().size() - 1; i++) {
 				Point start2 = s.coordinates().get(i);
@@ -99,6 +179,7 @@ public class GraphSearch {
 				var x4 = end2.longitude();
 				var y3 = start2.latitude();
 				var y4 = end2.latitude();
+
 				if (Line2D.linesIntersect(x1, y1, x2, y2, x3, y3, x4, y4)) {
 					return true;
 				}
@@ -139,11 +220,7 @@ public class GraphSearch {
 				temporaryPoints.add(p);
 				possible.add(LineString.fromLngLats(temporaryPoints));
 		}
-			var distanceAhead = lookAhead(possible, target, allZones);
-			System.out.println("Distance" + distanceAhead.size());
-			/*for (Double d: distanceAhead) {
-				System.out.println(d);
-			}*/
+
 			for (int k = 0; k< possible.size(); k++) {
 				var tmp = possible.get(k).coordinates().get(0);
 
@@ -161,7 +238,7 @@ public class GraphSearch {
 				}
 			}
 			
-			var indexes = indexOfAll(Collections.min(distance), distance);
+			var indexes = helper.indexOfAll(Collections.min(distance), distance);
 			Random randomizer = new Random(seed);
 			var minIndex = indexes.get(randomizer.nextInt(indexes.size()));
 			var nextP = nextPoints.get(minIndex);
@@ -202,7 +279,7 @@ public class GraphSearch {
 		return lines;
 	}
 	
-	public ArrayList<Double> lookAhead(ArrayList<LineString> possible, Point target,ArrayList<LineString> allZones ){
+/*	public ArrayList<Double> lookAhead(ArrayList<LineString> possible, Point target,ArrayList<LineString> allZones ){
 		var result = new ArrayList<Double>();
 		for (LineString l: possible) {
 			var distance = new ArrayList<Double>();
@@ -217,22 +294,12 @@ public class GraphSearch {
 				var y1 = (Double) point.latitude();
 				var y2 = (Double) target.latitude();
 				distance.add(helper.euclid(x1, y1, x2, y2));
-/*				temporaryPoints.add(p);
+				temporaryPoints.add(p);
 				temporaryPoints.add(point);
-				possibilities.add(LineString.fromLngLats(temporaryPoints));*/
+				possibilities.add(LineString.fromLngLats(temporaryPoints));
 			}		
 			result.add(Collections.max(distance));
 			}
 		return result;
-	}
-	
-	public  ArrayList<Integer> indexOfAll(Double value, ArrayList<Double> distance) {
-	    var indexList = new ArrayList<Integer>();
-	    for (int i = 0; i < distance.size(); i++) {
-	        if (value.equals(distance.get(i))) {
-	            indexList.add(i);
-	        }
-	    }
-	    return indexList;
-	}
+	} */
 }
