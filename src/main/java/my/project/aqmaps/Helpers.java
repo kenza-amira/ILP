@@ -7,10 +7,9 @@ import com.mapbox.geojson.Point;
 /**
  * Helpers Class description.
  * 
- * @author kenzaamira This class focuses on providing various helper functions
- *         to avoid messy code. It has methods to compute Pythagorean distances,
- *         to find the Index in an array, to generate a distance matrix, and to
- *         reorder arrays.
+ * This class focuses on providing various helper functions to avoid messy code.
+ * It has methods to compute Pythagorean distances, to find the Index in an
+ * array, to generate a distance matrix, and to reorder arrays.
  *
  */
 public class Helpers {

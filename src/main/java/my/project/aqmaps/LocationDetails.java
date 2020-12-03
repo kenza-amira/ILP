@@ -60,6 +60,7 @@ public class LocationDetails {
 		this.square = square;
 	}
 
+	//Getter functions
 	public String getCountry() {
 		return country;
 	}

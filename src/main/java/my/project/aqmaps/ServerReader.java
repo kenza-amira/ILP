@@ -18,11 +18,10 @@ import com.mapbox.geojson.Polygon;
 /**
  * Server Reader Class description.
  * 
- * @author kenzaamira This class focuses on reading data from the web server. It
- *         contains the methods to get a list of sensors and a method to retried
- *         no-fly zones. The ServerReader object takes as arguments: String
- *         host: contains the port we want to connect to String month, day and
- *         year: to access the relevant folder
+ * This class focuses on reading data from the web server. It contains the
+ * methods to get a list of sensors and a method to retried no-fly zones. The
+ * ServerReader object takes as arguments: String host: contains the port we
+ * want to connect to String month, day and year: to access the relevant folder
  *
  */
 

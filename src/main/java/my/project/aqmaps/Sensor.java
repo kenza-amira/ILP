@@ -10,7 +10,8 @@ public class Sensor {
 		this.battery = bat;
 		this.reading = read;
 	}
-
+	
+	// Getter Functions
 	public String getLocation() {
 		return location;
 	}
