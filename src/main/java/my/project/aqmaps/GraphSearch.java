@@ -28,7 +28,7 @@ public class GraphSearch {
 	private ArrayList<LineString> allZones;
 	private long seed;
 	private ArrayList<Point> orderedSensors;
-	double total_distance;
+	ArrayList<Integer> route = new ArrayList<>();
 
 	/**
 	 * This is the class constructor it takes multiple arguments that have been
@@ -59,93 +59,7 @@ public class GraphSearch {
 		this.orderedSensors = orderedSensors;
 
 	}
-
-	/**
-	 * This method implements a greedy search algorithm
-	 * 
-	 * @param dists  Distance matrix (length x length) that stores all the distances
-	 *               between one point to another
-	 * @param length Number of sensors to be sorted
-	 * @return An ArrayList of indexes that we will use to sort the arrays
-	 * @see my.project.aqmaps.Helpers#reorderArrays()
-	 */
-	public ArrayList<Integer> greedySearch(double[][] dists, int length) {
-		final var helper = new Helpers();
-		// To keep track of the visited sensors
-		var visited = new ArrayList<Integer>();
-
-		// Initializing our output and queue
-		var route = new ArrayList<Integer>();
-		Queue<Integer> queue = new LinkedList<Integer>();
-
-		/*
-		 * This part takes the starting point of the drone (given by the command line)
-		 * and looks for the closest sensor. The closest sensor is then added to the
-		 * queue and the route.
-		 */
-		var distance = new ArrayList<Double>();
-		for (Point p : sensorsLocation) {
-			var d = helper.euclid(p.longitude(), p.latitude(), start.longitude(), start.latitude());
-			distance.add(d);
-		}
-		// Get index first occurrence of the minimum value in the array
-		int minIndex = distance.indexOf(Collections.min(distance));
-		route.add(minIndex);
-		queue.add(minIndex);
-
-		/*
-		 * This while loop keeps looping until we run out of sensors. It takes a sensor
-		 * looks for the closest sensors. It then adds the found sensor to the queue and
-		 * the same is done until we have a route.
-		 */
-		int counter = 1;
-		while (counter < length) {
-			counter += 1;
-			Integer i = queue.remove();
-			visited.add(i);
-			double[] next = dists[i];
-			// If the Sensor is already visited we set the distance from our current sensor
-			// to 0
-			for (Integer x : visited) {
-				next[x] = 0.0;
-			}
-
-			// The value that we will pick is the minimum non-zero value.
-			double value = Double.MAX_VALUE;
-			for (Double d : next) {
-				value = (d == 0) ? value : Math.min(value, d);
-			}
-			total_distance += value;
-			/* We find the indexes of that value then randomly select one 
-			 * and add it to our queue, route and visited arrays.  */
-			var indexes = helper.indexOfAll(value, next);
-			Random randomizer = new Random(seed);
-			int index = indexes.get(randomizer.nextInt(indexes.size()));
-			queue.add(index);
-			visited.add(index);
-			route.add(index);
-		}
-		return route;
-	}
 	
-	public void trySwap(ArrayList<Integer> route, double[][] dists, int length) {
-		for (int i = 0; i<route.size(); i++) {
-				
-				double normalCost = dists[i][Math.floorMod((i-1), length)];
-				normalCost += dists[Math.floorMod(i+2, length)][Math.floorMod(i+1, length)];
-				
-				double changedCost = dists[i][Math.floorMod(i+2, length)];
-				changedCost += dists[Math.floorMod(i+1, length)][Math.floorMod(i-1, length)];
-				
-				if (changedCost < normalCost) {
-					var a = route.get(i);
-					var b = route.get(Math.floorMod(i+1, length));
-					
-					route.set(i, b);
-					route.set(Math.floorMod(i+1, length),a);
-				}
-			}
-		}
 	/**
 	 * This method finds the next possible points given a starting point. The drone
 	 * cannot fly in an arbitrary direction. It can only be sent in a direction
@@ -301,115 +215,85 @@ public class GraphSearch {
 	}
 	
 	
-	public ArrayList<Integer> AheadSearch(double[][] dists, int length) {
-		final var helper = new Helpers();
-		// To keep track of the visited sensors
-		var visited = new ArrayList<Integer>();
+	
+	
+	public ArrayList<Integer> TwoOpt (int length, double[][]dists)
+	{
+	    
+	    var newTour = new ArrayList<Integer>();
 		
-		double[][] lookAhead = new double [length][length];
-		var total = new double [length];
-
-		// Initializing our output and queue
-		var route = new ArrayList<Integer>();
-		Queue<Integer> queue = new LinkedList<Integer>();
-
-		/*
-		 * This part takes the starting point of the drone (given by the command line)
-		 * and looks for the closest sensor. The closest sensor is then added to the
-		 * queue and the route.
-		 */
-		var distance = new ArrayList<Double>();
-		for (Point p : sensorsLocation) {
-			var d = helper.euclid(p.longitude(), p.latitude(), start.longitude(), start.latitude());
-			distance.add(d);
+		for (int i= 0; i<sensorsLocation.size(); i ++) {
+			route.add(i);
+			newTour.add(i);
 		}
-		// Get index first occurrence of the minimum value in the array
-		int minIndex = distance.indexOf(Collections.min(distance));
-		route.add(minIndex);
-		queue.add(minIndex);
-
-		/*
-		 * This while loop keeps looping until we run out of sensors. It takes a sensor
-		 * looks for the closest sensors. It then adds the found sensor to the queue and
-		 * the same is done until we have a route.
-		 */
-		int counter = 1;
-		while (counter < length) {
-			counter += 1;
-			Integer i = queue.remove();
-			visited.add(i);
-			double[] next = dists[i];
-			// If the Sensor is already visited we set the distance from our current sensor
-			// to 0
-			for (Integer x : visited) {
-				next[x] = 0.0;
-			}
-			
-			for (int y = 0; y < next.length; y ++) {
-				lookAhead[y] = dists[y];
-			}
-			
-			for (int x = 0; x <next.length; x ++ ) {
-				if (next[x]!=0) {
-					double value = Double.MAX_VALUE;
-					for (Double d : lookAhead[x]) {
-						value = (d == 0) ? value : Math.min(value, d);
-					}
-					total[x] = next[x]+value;
-				} else {
-					total[x] = 0;
-				}
-			}
-			// The value that we will pick is the minimum non-zero value.
-			double value = Double.MAX_VALUE;
-			for (Double d : total) {
-				value = (d == 0) ? value : Math.min(value, d);
-			}
-			/* We find the indexes of that value then randomly select one 
-			 * and add it to our queue, route and visited arrays.  */
-			var indexes = helper.indexOfAll(value, total);
-			Random randomizer = new Random(seed);
-			int index = indexes.get(randomizer.nextInt(indexes.size()));
-			queue.add(index);
-			visited.add(index);
-			route.add(index);
-		}
-		return route;
+		int size = route.size();
+	 
+	    // repeat until no improvement is made 
+	    int improve = 0;
+	 
+	    while ( improve < 800 )
+	    {
+	        double best_distance = tourValue(route, dists);
+	 
+	        for ( int i = 1; i < size - 1; i++ ) 
+	        {
+	            for ( int k = i + 1; k < size; k++) 
+	            {
+	                TwoOptSwap( i, k, route, newTour );
+	                double new_distance = tourValue(newTour, dists);
+	 
+	                if ( new_distance < best_distance ) 
+	                {
+	                    // Improvement found so reset
+	                    improve = 0;
+	                                                 
+	                    for (int j=0;j<size;j++)
+	                    {
+	                        route.set(j, newTour.get(j));
+	                    }
+	                         
+	                    best_distance = new_distance;
+	                         
+	                }
+	            }
+	        }
+	 
+	        improve ++;
+	    }
+		return newTour;
 	}
 	
-	public ArrayList<Integer> twoOpt (ArrayList<Integer> route, double[][]dists, int length){
-		var newRoute = new ArrayList<Integer>();
-		for (Integer i: route) {
-			newRoute.add(i);
+	public double tourValue(ArrayList<Integer> newRoute, double[][]dists) {
+		double value = 0;
+		int length = dists.length;
+		for (int i = 0; i <newRoute.size()-1; i ++) {
+			value += dists[newRoute.get(i)][Math.floorMod(newRoute.get(i+1),length)];
 		}
-		for (int i = 0; i <route.size(); i++) {
-			for (int j = 0; j <route.size()-1; j ++) {
-				var normalCost = dists[i][Math.floorMod(i-1, length)];
-				normalCost += dists[j][Math.floorMod(j+1, length)];
-				
-				var changedCost = dists[j][Math.floorMod(i-1, length)];
-				changedCost += dists[Math.floorMod(i, length)][Math.floorMod(j+1, length)];
-				System.out.println(normalCost < changedCost);
-				
-				if (changedCost < normalCost) {
-					int dec = 0;
-					for (int k = 0; k < i-1; k ++) {
-						newRoute.set(k, route.get(k));
-					}
-					for (int k = i; k < j+1; k++ ) {
-						newRoute.set(k, route.get(k-dec));
-						dec += 1;
-					}
-					for (int k = j +1 ; k < route.size(); k ++) {
-						newRoute.set(k, route.get(k));
-					}
-					
-				}
-			}
-		}
-		for (int i = 0; i < route.size(); i ++) {
-			System.out.println(newRoute.get(i) + "," + route.get(i));
-		}
-		return newRoute;
+		return value;
+	}
+	
+	void TwoOptSwap( int i, int k, ArrayList<Integer> route, ArrayList<Integer> newRoute ) 
+	{
+	    int size = route.size();
+	 
+	    // 1. take route[0] to route[i-1] and add them in order to new_route
+	    for ( int c = 0; c <= i - 1; ++c )
+	    {
+	        newRoute.set( c, route.get( c ) );
+	    }
+	         
+	    // 2. take route[i] to route[k] and add them in reverse order to new_route
+	    int dec = 0;
+	    for ( int c = i; c <= k; ++c )
+	    {
+	        newRoute.set( c, route.get( k - dec ) );
+	        dec++;
+	    }
+	 
+	    // 3. take route[k+1] to end and add them in order to new_route
+	    for ( int c = k + 1; c < size; ++c )
+	    {
+	        newRoute.set( c, route.get( c ) );
+	    }
 	}
 }

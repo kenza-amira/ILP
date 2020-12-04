@@ -85,15 +85,14 @@ public class App {
 		var orderedBatteries = new ArrayList<String>();
 		var w3wOrdered = new ArrayList<String>();
 
-		// Greedy Search Algorithm
+		// Two-Opt Algorithm
 		final var search = new GraphSearch(orderedSensors, orderedBatteries, orderedReadings, start, allZones, seed,
 				w3wOrdered, sensorsLocation);
-		//var route = search.greedySearch(dists, length);
-		var route = search.AheadSearch(dists, length);
-		var newRoute = search.twoOpt(route, dists, length);
-		// Reordering our Sensors and their details in the order given by the greedy
-		// search (route).
-		helper.reorderArrays(newRoute, sensorsLocation, batteries, readings, w3wAddress, orderedSensors, orderedBatteries,
+
+		var route = search.TwoOpt(length, dists);
+		
+		// Reordering our Sensors and their details in the order given by the Two-Opt search (route).
+		helper.reorderArrays(route, sensorsLocation, batteries, readings, w3wAddress, orderedSensors, orderedBatteries,
 				orderedReadings, w3wOrdered);
 
 		// Path Finding algorithm
@@ -111,12 +110,12 @@ public class App {
 		// Writing map into file
 		var readingFilename = "readings-" + day + "-" + month + "-" + year + ".geojson";
 		var outputFileReading = writer.createFile(readingFilename, map);
-		System.out.println("File is at: " + outputFileReading.getAbsolutePath());
+		//System.out.println("File is at: " + outputFileReading.getAbsolutePath());
 
 		// Writing flight path into file
 		var flightpathFilename = "flightpath-" + day + "-" + month + "-" + year + ".txt";
 		var outputFilePath = writer.writeLineByLine(flightpathFilename, path);
-		System.out.println("File is at: " + outputFilePath.getAbsolutePath());
+		//System.out.println("File is at: " + outputFilePath.getAbsolutePath());
 	}
 
 }
