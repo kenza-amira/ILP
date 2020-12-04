@@ -90,9 +90,10 @@ public class App {
 				w3wOrdered, sensorsLocation);
 		//var route = search.greedySearch(dists, length);
 		var route = search.AheadSearch(dists, length);
+		var newRoute = search.twoOpt(route, dists, length);
 		// Reordering our Sensors and their details in the order given by the greedy
 		// search (route).
-		helper.reorderArrays(route, sensorsLocation, batteries, readings, w3wAddress, orderedSensors, orderedBatteries,
+		helper.reorderArrays(newRoute, sensorsLocation, batteries, readings, w3wAddress, orderedSensors, orderedBatteries,
 				orderedReadings, w3wOrdered);
 
 		// Path Finding algorithm

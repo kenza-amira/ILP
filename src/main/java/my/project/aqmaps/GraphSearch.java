@@ -28,6 +28,7 @@ public class GraphSearch {
 	private ArrayList<LineString> allZones;
 	private long seed;
 	private ArrayList<Point> orderedSensors;
+	double total_distance;
 
 	/**
 	 * This is the class constructor it takes multiple arguments that have been
@@ -114,6 +115,7 @@ public class GraphSearch {
 			for (Double d : next) {
 				value = (d == 0) ? value : Math.min(value, d);
 			}
+			total_distance += value;
 			/* We find the indexes of that value then randomly select one 
 			 * and add it to our queue, route and visited arrays.  */
 			var indexes = helper.indexOfAll(value, next);
@@ -373,5 +375,40 @@ public class GraphSearch {
 			route.add(index);
 		}
 		return route;
+	}
+	
+	public ArrayList<Integer> twoOpt (ArrayList<Integer> route, double[][]dists, int length){
+		var newRoute = new ArrayList<Integer>();
+		for (Integer i: route) {
+			newRoute.add(i);
+		}
+		for (int i = 0; i <route.size(); i++) {
+			for (int j = 0; j <route.size()-1; j ++) {
+				var normalCost = dists[i][Math.floorMod(i-1, length)];
+				normalCost += dists[j][Math.floorMod(j+1, length)];
+				
+				var changedCost = dists[j][Math.floorMod(i-1, length)];
+				changedCost += dists[Math.floorMod(i, length)][Math.floorMod(j+1, length)];
+				
+				if (changedCost<normalCost) {
+					int dec = 0;
+					for (int k = 0; k < i-1; k ++) {
+						newRoute.set(k, route.get(k));
+					}
+					for (int k = i; k < j+1; k++ ) {
+						newRoute.set(k, route.get(k-dec));
+						dec += 1;
+					}
+					for (int k = j +1 ; k < route.size(); k ++) {
+						newRoute.set(k, route.get(k));
+					}
+					
+				}
+			}
+		}
+		for (Integer i: newRoute) {
+			System.out.println(i);
+		}
+		return newRoute;
 	}
 }
