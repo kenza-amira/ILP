@@ -389,8 +389,9 @@ public class GraphSearch {
 				
 				var changedCost = dists[j][Math.floorMod(i-1, length)];
 				changedCost += dists[Math.floorMod(i, length)][Math.floorMod(j+1, length)];
+				System.out.println(normalCost < changedCost);
 				
-				if (changedCost<normalCost) {
+				if (changedCost < normalCost) {
 					int dec = 0;
 					for (int k = 0; k < i-1; k ++) {
 						newRoute.set(k, route.get(k));
@@ -406,8 +407,8 @@ public class GraphSearch {
 				}
 			}
 		}
-		for (Integer i: newRoute) {
-			System.out.println(i);
+		for (int i = 0; i < route.size(); i ++) {
+			System.out.println(newRoute.get(i) + "," + route.get(i));
 		}
 		return newRoute;
 	}
