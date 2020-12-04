@@ -79,25 +79,26 @@ public class App {
 		// Getting distances from all points to every other points
 		double[][] dists = helper.generateDistanceMatrix(lng, lat, length);
 
-		// Initializing ordered output
+
+		// Two-Opt Algorithm
+		final var search = new GraphSearch(sensorsLocation, start);
+
+		var route = search.TwoOpt(dists);
+		
+		// Reordering our Sensors and their details in the order given by the Two-Opt search (route).
 		var orderedSensors = new ArrayList<Point>();
 		var orderedReadings = new ArrayList<String>();
 		var orderedBatteries = new ArrayList<String>();
 		var w3wOrdered = new ArrayList<String>();
-
-		// Two-Opt Algorithm
-		final var search = new GraphSearch(orderedSensors, orderedBatteries, orderedReadings, start, allZones, seed,
-				w3wOrdered, sensorsLocation);
-
-		var route = search.TwoOpt(length, dists);
 		
-		// Reordering our Sensors and their details in the order given by the Two-Opt search (route).
 		helper.reorderArrays(route, sensorsLocation, batteries, readings, w3wAddress, orderedSensors, orderedBatteries,
 				orderedReadings, w3wOrdered);
 
 		// Path Finding algorithm
+		var pathfinder = new PathFinder(start, orderedSensors, orderedReadings, w3wOrdered, orderedBatteries, 
+				allZones, seed);
 		var path = new ArrayList<String>();
-		var lines = search.findPath(features, path);
+		var lines = pathfinder.findPath(features, path);
 		for (LineString l : lines) {
 			features.add(Feature.fromGeometry((Geometry) l));
 		}
@@ -110,12 +111,12 @@ public class App {
 		// Writing map into file
 		var readingFilename = "readings-" + day + "-" + month + "-" + year + ".geojson";
 		var outputFileReading = writer.createFile(readingFilename, map);
-		//System.out.println("File is at: " + outputFileReading.getAbsolutePath());
+		System.out.println("File is at: " + outputFileReading.getAbsolutePath());
 
 		// Writing flight path into file
 		var flightpathFilename = "flightpath-" + day + "-" + month + "-" + year + ".txt";
 		var outputFilePath = writer.writeLineByLine(flightpathFilename, path);
-		//System.out.println("File is at: " + outputFilePath.getAbsolutePath());
+		System.out.println("File is at: " + outputFilePath.getAbsolutePath());
 	}
 
 }
