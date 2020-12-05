@@ -50,6 +50,19 @@ public class App implements Helpers{
 
 		ArrayList<Sensor> sensorList = reader.getSensorList();
 		ArrayList<LineString> allZones = reader.getNoFlyZones();
+		
+		//Adding confinement area to No Fly Zones
+		var corners = new ArrayList<Point>();
+		var p1 = Point.fromLngLat(-3.192473, 55.946233);
+		var p2 = Point.fromLngLat(-3.1916576, 55.946233);
+		var p3 = Point.fromLngLat(-3.1916576, 55.9458714);
+		var p4 = Point.fromLngLat(-3.192473, 55.9458714);
+		corners.add(p1);
+		corners.add(p2);
+		corners.add(p3);
+		corners.add(p4);
+		var confinementArea = LineString.fromLngLats(corners);
+		allZones.add(confinementArea);
 
 		final var sensHelp = new SensorHelpers(sensorList, host);
 		var app = new App();
