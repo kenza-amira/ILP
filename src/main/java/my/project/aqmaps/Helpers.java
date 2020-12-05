@@ -29,32 +29,6 @@ public interface Helpers {
 		return Math.sqrt((y2 - y1) * (y2 - y1) + (x2 - x1) * (x2 - x1));
 	}
 
-	/**
-	 * This method allows us to find the first occurrence of a value in an array
-	 * 
-	 * @param arr   Array in which we look for the value (array of doubles)
-	 * @param value The value we are looking for (double)
-	 * @return Index of first occurrence of the value in the array (int)
-	 */
-
-	default int findIndex(double arr[], double value) {
-
-		if (arr == null) {
-			return -1;
-		}
-
-		int len = arr.length;
-		int i = 0;
-		while (i < len) {
-
-			if (arr[i] == value) {
-				return i;
-			} else {
-				i = i + 1;
-			}
-		}
-		return -1;
-	}
 
 	/**
 	 * This method finds all the indexes of a given value
@@ -73,15 +47,6 @@ public interface Helpers {
 		return indexList;
 	}
 	
-	default ArrayList<Integer> indexOfAll(Double value, double[] distance) {
-		var indexList = new ArrayList<Integer>();
-		for (int i = 0; i < distance.length; i++) {
-			if (value.equals(distance[i])) {
-				indexList.add(i);
-			}
-		}
-		return indexList;
-	}
 
 	/**
 	 * This method allows us to generate a Distance matrix between all points in our
