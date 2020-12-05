@@ -9,7 +9,7 @@ import com.mapbox.geojson.Geometry;
 import com.mapbox.geojson.LineString;
 import com.mapbox.geojson.Point;
 
-public class App {
+public class App implements Helpers{
 	/**
 	 * This main method uses the methods from the other classes to output the a text
 	 * file containging the flightpath and a .geojson file containing the map. More
@@ -45,7 +45,6 @@ public class App {
 		var features = new ArrayList<Feature>();
 
 		// Calling the classes to be able to use the methods later on.
-		final var helper = new Helpers();
 		final var writer = new WriteToFile();
 		final var reader = new ServerReader(host, month, day, year);
 
@@ -53,6 +52,7 @@ public class App {
 		ArrayList<LineString> allZones = reader.getNoFlyZones();
 
 		final var sensHelp = new SensorHelpers(sensorList, host);
+		var app = new App();
 
 		/**
 		 * We have previously formed an array of Sensor objects. Since we now have a
@@ -74,10 +74,9 @@ public class App {
 		var lat = sensHelp.getLatitudes();
 		int length = sensorsLocation.size();
 
-		// features.addAll(noFly);
 
 		// Getting distances from all points to every other points
-		double[][] dists = helper.generateDistanceMatrix(lng, lat, length);
+		double[][] dists = app.generateDistanceMatrix(lng, lat, length);
 
 
 		// Two-Opt Algorithm
@@ -91,7 +90,8 @@ public class App {
 		var orderedBatteries = new ArrayList<String>();
 		var w3wOrdered = new ArrayList<String>();
 		
-		helper.reorderArrays(route, sensorsLocation, batteries, readings, w3wAddress, orderedSensors, orderedBatteries,
+		
+		app.reorderArrays(route, sensorsLocation, batteries, readings, w3wAddress, orderedSensors, orderedBatteries,
 				orderedReadings, w3wOrdered);
 
 		// Path Finding algorithm

@@ -5,12 +5,14 @@ import java.util.ArrayList;
 import com.mapbox.geojson.Point;
 
 /**
- * GraphSearch Class Description This class contains all the methods related to
- * graph search. I've decided to implement a Two-Opt heuristic. There will be
- * all necessary methods needed to run the heuristic in that class.
+ * GraphSearch Class Description
+ * 
+ * This class contains all the methods related to graph search. I've decided to
+ * implement a Two-Opt heuristic. There will be all necessary methods needed to
+ * run the heuristic in that class.
  *
  */
-public class GraphSearch {
+public class GraphSearch implements Helpers{
 	private ArrayList<Point> sensorsLocation;
 	private Point start;
 	ArrayList<Integer> route = new ArrayList<>();
@@ -94,16 +96,15 @@ public class GraphSearch {
 	 */
 
 	public double tourValue(ArrayList<Integer> newRoute, double[][] dists) {
-		var helper = new Helpers();
 		double value = 0;
 		int first = newRoute.get(0);
 		int end = newRoute.get(newRoute.size() - 1);
-		value += helper.euclid(start.longitude(), start.latitude(), sensorsLocation.get(first).longitude(),
+		value += euclid(start.longitude(), start.latitude(), sensorsLocation.get(first).longitude(),
 				sensorsLocation.get(first).latitude());
 		for (int i = 0; i < newRoute.size() - 1; i++) {
 			value += dists[newRoute.get(i)][newRoute.get(i + 1)];
 		}
-		value += helper.euclid(start.longitude(), start.latitude(), sensorsLocation.get(end).longitude(),
+		value += euclid(start.longitude(), start.latitude(), sensorsLocation.get(end).longitude(),
 				sensorsLocation.get(end).latitude());
 		return value;
 	}

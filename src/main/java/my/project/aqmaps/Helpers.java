@@ -12,7 +12,7 @@ import com.mapbox.geojson.Point;
  * array, to generate a distance matrix, and to reorder arrays.
  *
  */
-public class Helpers {
+public interface Helpers {
 
 	/**
 	 * This method computes Pythagorean distances. Since for this coursework, we
@@ -25,7 +25,7 @@ public class Helpers {
 	 * @param y2 y-coordinate of the second point (double)
 	 * @return The Pythagorean distance between the two points (double)
 	 */
-	public double euclid(double x1, double y1, double x2, double y2) {
+	default double euclid(double x1, double y1, double x2, double y2) {
 		return Math.sqrt((y2 - y1) * (y2 - y1) + (x2 - x1) * (x2 - x1));
 	}
 
@@ -37,7 +37,7 @@ public class Helpers {
 	 * @return Index of first occurrence of the value in the array (int)
 	 */
 
-	public int findIndex(double arr[], double value) {
+	default int findIndex(double arr[], double value) {
 
 		if (arr == null) {
 			return -1;
@@ -63,7 +63,7 @@ public class Helpers {
 	 * @param distance The Array in which we look for the value (double)
 	 * @return An ArrayList of Integer with the indexes that store that value.
 	 */
-	public ArrayList<Integer> indexOfAll(Double value, ArrayList<Double> distance) {
+	default ArrayList<Integer> indexOfAll(Double value, ArrayList<Double> distance) {
 		var indexList = new ArrayList<Integer>();
 		for (int i = 0; i < distance.size(); i++) {
 			if (value.equals(distance.get(i))) {
@@ -73,7 +73,7 @@ public class Helpers {
 		return indexList;
 	}
 	
-	public ArrayList<Integer> indexOfAll(Double value, double[] distance) {
+	default ArrayList<Integer> indexOfAll(Double value, double[] distance) {
 		var indexList = new ArrayList<Integer>();
 		for (int i = 0; i < distance.length; i++) {
 			if (value.equals(distance[i])) {
@@ -93,7 +93,7 @@ public class Helpers {
 	 * @return A length x length matrix of distances (double) e.g dists[0][2] is the
 	 *         distance between the 1st Sensor and the 3rd sensor.
 	 */
-	public double[][] generateDistanceMatrix(ArrayList<Double> lng, ArrayList<Double> lat, int length) {
+	default double[][] generateDistanceMatrix(ArrayList<Double> lng, ArrayList<Double> lat, int length) {
 		double[][] dists = new double[length][length];
 		for (int i = 0; i < length; i++) {
 			for (int j = 0; j < length; j++) {
@@ -118,7 +118,7 @@ public class Helpers {
 	 * @param w3wOrdered       New ordering of the what 3 words addresses (String)
 	 */
 
-	public void reorderArrays(ArrayList<Integer> route, ArrayList<Point> sensorsLocation, ArrayList<String> batteries,
+	default void reorderArrays(ArrayList<Integer> route, ArrayList<Point> sensorsLocation, ArrayList<String> batteries,
 			ArrayList<String> readings, ArrayList<String> w3wAddress, ArrayList<Point> orderedSensors,
 			ArrayList<String> orderedBatteries, ArrayList<String> orderedReadings, ArrayList<String> w3wOrdered) {
 		for (Integer i : route) {
