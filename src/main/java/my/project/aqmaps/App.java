@@ -119,7 +119,6 @@ public class App implements Helpers{
 		// Generating our map
 		var collections = FeatureCollection.fromFeatures(features);
 		var map = collections.toJson();
-		System.out.println(collections.toJson());
 
 		// Writing map into file
 		var readingFilename = "readings-" + day + "-" + month + "-" + year + ".geojson";
