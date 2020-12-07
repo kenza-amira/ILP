@@ -54,8 +54,8 @@ public class GraphSearch implements Helpers{
 		int size = route.size();
 
 		// Out while loop while continue looping until no more improvement is made
-		int improve = 0;
-		while (improve < 800) {
+		int better = 0;
+		while (better < 800) {
 			double best_distance = tourValue(route, dists);
 
 			for (int i = 1; i < size - 1; i++) {
@@ -66,7 +66,7 @@ public class GraphSearch implements Helpers{
 
 					if (new_distance < best_distance) {
 						// If an improvement is made, the improve counter resets.
-						improve = 0;
+						better = 0;
 
 						for (int j = 0; j < size; j++) {
 							route.set(j, newTour.get(j));
@@ -78,7 +78,7 @@ public class GraphSearch implements Helpers{
 				}
 			}
 
-			improve++;
+			better++;
 		}
 		return newTour;
 	}

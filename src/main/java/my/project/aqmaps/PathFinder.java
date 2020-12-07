@@ -70,9 +70,8 @@ public class PathFinder extends SensorHelpers implements Helpers {
 		// We start by initializing current to the starting point of the drone
 		Point current = Point.fromLngLat(start.longitude(), start.latitude());
 
-		// Keeping track of already visited LineStrings and Points
+		// Keeping track of already visited LineStrings
 		var visitedLineStrings = new ArrayList<LineString>();
-		var visitedPoints = new ArrayList<Point>();
 
 		// Added starting point to the end to form closed loop
 		orderedSensors.add(start);
@@ -119,13 +118,10 @@ public class PathFinder extends SensorHelpers implements Helpers {
 			 * never picks it
 			 */
 			for (int k = 0; k < possible.size(); k++) {
-				var tmp = possible.get(k).coordinates().get(0);
 
 				if (visitedLineStrings.contains(possible.get(k))) {
 					distance.set(k, Double.MAX_VALUE);
 				} else if (isIntersecting(possible.get(k), allZones)) {
-					distance.set(k, Double.MAX_VALUE);
-				} else if (visitedPoints.contains(tmp)) {
 					distance.set(k, Double.MAX_VALUE);
 				}
 			}
