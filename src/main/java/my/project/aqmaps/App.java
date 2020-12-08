@@ -95,7 +95,7 @@ public class App implements Helpers{
 		// Two-Opt Algorithm
 		final var search = new GraphSearch(sensorsLocation, start);
 
-		var route = search.TwoOpt(dists);
+		var route = search.twoOpt(dists);
 		
 		// Reordering our Sensors and their details in the order given by the Two-Opt search (route).
 		var orderedSensors = new ArrayList<Point>();
@@ -123,12 +123,12 @@ public class App implements Helpers{
 		// Writing map into file
 		var readingFilename = "readings-" + day + "-" + month + "-" + year + ".geojson";
 		var outputFileReading = writer.createFile(readingFilename, map);
-		System.out.println("File is at: " + outputFileReading.getAbsolutePath());
+		System.out.println("File" + readingFilename + "is at: " + outputFileReading.getAbsolutePath());
 
 		// Writing flight path into file
 		var flightpathFilename = "flightpath-" + day + "-" + month + "-" + year + ".txt";
 		var outputFilePath = writer.writeLineByLine(flightpathFilename, path);
-		System.out.println("File is at: " + outputFilePath.getAbsolutePath());
+		System.out.println("File" +flightpathFilename +"is at: " + outputFilePath.getAbsolutePath());
 	}
 
 }

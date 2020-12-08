@@ -38,7 +38,7 @@ public class GraphSearch implements Helpers{
 	 * @return This method returns an ArrayList of Integer that contains our route
 	 *         (indexes of Points). This will be used to sort all the Sensors.
 	 */
-	public ArrayList<Integer> TwoOpt(double[][] dists) {
+	public ArrayList<Integer> twoOpt(double[][] dists) {
 
 		/*
 		 * We start by initializing route and newRoute, they will contain the integers
@@ -55,7 +55,7 @@ public class GraphSearch implements Helpers{
 
 		// Out while loop while continue looping until no more improvement is made
 		int better = 0;
-		while (better < 800) {
+		while (better < 1000) {
 			double best_distance = tourValue(route, dists);
 
 			for (int i = 1; i < size - 1; i++) {
@@ -80,7 +80,7 @@ public class GraphSearch implements Helpers{
 
 			better++;
 		}
-		return newTour;
+		return route;
 	}
 
 	/**

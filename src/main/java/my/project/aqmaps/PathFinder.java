@@ -119,11 +119,11 @@ public class PathFinder extends SensorHelpers implements Helpers {
 			 */
 			for (int k = 0; k < possible.size(); k++) {
 
-				if (visitedLineStrings.contains(possible.get(k))) {
+				if (isIntersecting(possible.get(k), allZones)) {
 					distance.set(k, Double.MAX_VALUE);
-				} else if (isIntersecting(possible.get(k), allZones)) {
+				} else if (visitedLineStrings.contains(possible.get(k))) {
 					distance.set(k, Double.MAX_VALUE);
-				}
+				} 
 			}
 
 			/*
@@ -140,12 +140,15 @@ public class PathFinder extends SensorHelpers implements Helpers {
 			/*
 			 * We create a LineString between our current point and our next point and add
 			 * it to the ArrayList we wish to return. We also add it to the
-			 * visitedLineStrings
+			 * visitedLineStrings.
 			 */
+			
+			
 			points.add(current);
 			points.add(nextP);
 			lines.add(LineString.fromLngLats(points));
 			visitedLineStrings.add(LineString.fromLngLats(points));
+
 
 			// We set current point to be the point we chose to go to
 			current = nextP;
@@ -238,15 +241,20 @@ public class PathFinder extends SensorHelpers implements Helpers {
 
 		// Checking for intersection for every LineString. We use the Java Line2D API.
 		for (LineString s : ls) {
-			for (int i = 0; i < s.coordinates().size() - 1; i++) {
+			
+			for (int i = 0; i < s.coordinates().size(); i++) {
 				Point start2 = s.coordinates().get(i);
-				Point end2 = s.coordinates().get(i + 1);
+				Point end2 = s.coordinates().get(Math.floorMod(i+1, s.coordinates().size()));
 				var x3 = start2.longitude();
 				var x4 = end2.longitude();
 				var y3 = start2.latitude();
 				var y4 = end2.latitude();
 
 				if (Line2D.linesIntersect(x1, y1, x2, y2, x3, y3, x4, y4)) {
+					return true;
+				}
+				
+				if (x1 == x3 || x2 == x4 || y1 == y3 || y2 == y4) {
 					return true;
 				}
 			}
